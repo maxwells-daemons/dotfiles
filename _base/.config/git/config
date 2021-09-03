@@ -1,0 +1,12 @@
+[user]
+	name = Aidan Swope
+	email = aidanswope@gmail.com
+[core]
+	editor = vim
+	excludesfile = ~/.config/git/gitignore-global
+[pull]
+	rebase = true
+[init]
+	defaultBranch = main
+[merge]
+	conflictstyle = diff3

@@ -1,0 +1,11 @@
+$include /etc/inputrc
+
+# Faster tab completion: greedily complete and show ambiguous partial matches
+set show-all-if-ambiguous on
+
+# Prettier completions
+set colored-stats On
+set visible-stats On
+set mark-symlinked-directories On
+set colored-completion-prefix On
+set menu-complete-display-prefix On
