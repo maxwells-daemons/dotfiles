@@ -20,7 +20,6 @@ export PATH=~/bin:$PATH
 # Most of this just aims to move dotfiles from ~ to ~/.config
 
 # Xorg
-export XAUTHORITY=$XDG_RUNTIME_DIR/Xauthority
 export XINITRC=$XDG_CONFIG_HOME/x11/xinitrc
 export XSERVERRC=$XDG_CONFIG_HOME/x11/xserverrc
 export XCOMPOSEFILE=$XDG_CONFIG_HOME/x11/xcompose
