@@ -20,3 +20,5 @@
 	submodule = log
 [push]
 	followTags = true
+[credential]
+	helper = cache
