@@ -9,3 +9,6 @@ set visible-stats On
 set mark-symlinked-directories On
 set colored-completion-prefix On
 set menu-complete-display-prefix On
+
+# Don't modify history after it's written
+set revert-all-at-newline on
