@@ -1,0 +1,22 @@
+$include /etc/inputrc
+
+# Faster tab completion: greedily complete and show ambiguous partial matches
+set show-all-if-ambiguous on
+set show-all-if-unmodified on
+
+# Use the text after the cursor when completing in the middle of a line
+set skip-completed-text on
+
+# Ignore case when completing
+set completion-ignore-case on
+
+# Prettier completions
+set colored-stats on
+set mark-symlinked-directories on
+
+# Don't modify history after it's written
+set revert-all-at-newline on
+
+# Use the existing text on the line as a prefix to search history
+"\e[B": history-search-forward
+"\e[A": history-search-backward
