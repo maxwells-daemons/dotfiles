@@ -1,10 +1,12 @@
 """ ~/.vim/vimrc
-" Lightweight config for vanilla Vim.
-" Neovim uses its own configuration.
+" Complete config for vanilla Vim, and initial config for Neovim.
+" Defines sensible defaults and keybindings.
 " Mostly from https://github.com/tpope/vim-sensible.
 
 " Start with default vimrc
-source $VIMRUNTIME/defaults.vim
+if !has('nvim')
+    source $VIMRUNTIME/defaults.vim
+endif
 
 """ Mappings
 " Use <Space> as the leader
@@ -60,10 +62,15 @@ set number relativenumber " Show absolute+relative numbers
 set cursorline " Highlight the cursor line
 set colorcolumn=80 " Color column 80
 set noerrorbells novisualbell " Disable bell on error
-colorscheme desert
+
+" Default colorscheme for plain vim
+if !has('nvim')
+    colorscheme desert
+endif
 
 """ Misc
 set laststatus=2 " Always show status bar
+set scrolloff=5 " Always show 5 lines on each side of the cursor
 set sidescrolloff=5 " Always show 5 characters on each side of the cursor
 set autoread " Automatically reload a file when it has been changed outside of vim
 set hidden " Allow backgrounding unsaved buffers
@@ -81,7 +88,7 @@ if v:version > 703 || v:version == 703 && has("patch541")
 endif
 
 " Save all-caps global variables between sessions; dependency for some plugins
-if !empty(&viminfo)
+if !has('nvim') && !empty(&viminfo)
     set viminfo^=!
 endif
 
@@ -115,5 +122,7 @@ endif
 
 " Persist undo history across sessions
 set undofile 
-set undodir=~/.vim/undo
 
+if !has('nvim')
+    set undodir=~/.vim/undo
+endif
