@@ -1,0 +1,119 @@
+""" ~/.vim/vimrc
+" Lightweight config for vanilla Vim.
+" Neovim uses its own configuration.
+" Mostly from https://github.com/tpope/vim-sensible.
+
+" Start with default vimrc
+source $VIMRUNTIME/defaults.vim
+
+""" Mappings
+" Use <Space> as the leader
+let mapleader = "\<Space>"
+
+" <C-/> clears the search highlight
+nnoremap <silent> <C-_> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
+
+" ' jumps to an exact mark location
+nnoremap ' `
+
+" Move between splits with <Ctrl>-HJKL
+nmap <C-j> <C-W>j
+nmap <C-k> <C-W>k
+nmap <C-h> <C-W>h
+nmap <C-l> <C-W>l
+
+" Make Y work like C and D
+nmap Y y$
+
+" Stay in visual mode when indenting visual selections
+xnoremap > >gv
+xnoremap < <gv
+
+" Enable repetition across a visual selection
+vnoremap . :normal .<CR>
+
+""" Whitespace
+set autoindent " Autoindent new lines to current width
+set smarttab " Enable smart tab
+set tabstop=4 " Visual spaces per tab character
+set softtabstop=4 " Spaces per soft-tab
+set shiftwidth=4 " Amount to shift with < and >
+set expandtab " Use <TAB> to insert spaces
+
+""" Completion
+" Don't scan included files for completion
+set complete-=i
+
+""" Search
+set hlsearch " Highlight search matches
+set ignorecase smartcase " Only capital searches are case-sensitive
+set gdefault " Replaces are global by default
+
+" Regex search by default
+nmap / /\v
+nmap ? ?\v
+
+""" Aesthetics
+set termguicolors " Enable 24-bit color in terminal
+set showcmd  " Show partial commands in the bottom bar
+set number relativenumber " Show absolute+relative numbers
+set cursorline " Highlight the cursor line
+set colorcolumn=80 " Color column 80
+set noerrorbells novisualbell " Disable bell on error
+colorscheme desert
+
+""" Misc
+set laststatus=2 " Always show status bar
+set sidescrolloff=5 " Always show 5 characters on each side of the cursor
+set autoread " Automatically reload a file when it has been changed outside of vim
+set hidden " Allow backgrounding unsaved buffers
+set lazyredraw " Don't redraw screen while executing a macro for speed
+
+" Use system clipboard if available
+if has('clipboard')
+    set clipboard=unnamed
+    set clipboard+=unnamedplus
+endif
+
+" Delete comment character when joining commented lines
+if v:version > 703 || v:version == 703 && has("patch541")
+    set formatoptions+=j 
+endif
+
+" Save all-caps global variables between sessions; dependency for some plugins
+if !empty(&viminfo)
+    set viminfo^=!
+endif
+
+" Ensure './tags;' is in the tag file list
+if has('path_extra')
+    setglobal tags-=./tags tags-=./tags; tags^=./tags;
+endif 
+
+" Don't save global options between sessions or views
+set sessionoptions-=options
+set viewoptions-=options
+
+" Load matchit.vim, but only if the user hasn't installed a newer version.
+" This plugin lets us jump between open/close parens, if/endif, ...
+if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
+    runtime! macros/matchit.vim
+endif
+
+" Workaround for Kitty rendering bug 
+" (See: https://github.com/kovidgoyal/kitty/issues/108)
+let &t_ut=''
+
+" Add multi-line movement to jump list
+nnoremap <expr> k (v:count > 1 ? "m'" . v:count : '') . 'k'
+nnoremap <expr> j (v:count > 1 ? "m'" . v:count : '') . 'j'
+
+" Disable arabic shaping to improve performance
+if has('arabic')
+    set noarabicshape
+endif
+
+" Persist undo history across sessions
+set undofile 
+set undodir=~/.vim/undo
+
