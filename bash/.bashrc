@@ -60,7 +60,7 @@ export HISTSIZE=10000
 export HISTFILESIZE=1000000
 
 # Ignore duplicate lines, lines starting with space, and certain commands
-export HISTCONTROL="erasedups:ignoreboth"
+export HISTCONTROL="ignoredups"
 export HISTIGNORE="ls:bg:fg:pwd:clear:history:exit"
 
 # Record commands as soon as they're used
@@ -68,3 +68,8 @@ PROMPT_COMMAND="history -a"
 
 # Record timestamps: <date> <time> <command>
 HISTTIMEFORMAT="%F %T "
+
+
+### General settings
+# Update LINES and COLUMNS on resize
+shopt -s checkwinsize
