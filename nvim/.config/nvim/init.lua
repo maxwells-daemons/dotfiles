@@ -1,245 +1,356 @@
 -- init.lua: configuration for Neovim.
 -- Extends default vimrc, which sets basic options and mappings.
 
---[[
-
-Commands:
-  - <C-/>: clear search highlight
-  - <C-s>: show function signature helper
-  - <C-hjkl>: navigate splits
-  - <S-hl>: cycle buffers
-  - <Leader>r: rename
-  - <Leader>a: code action
-  - <Leader>wa: add workspace folder
-  - <Leader>wd: delete workspace folder
-  - <Leader>wl: list workspace folders
-  - K: view LSP help for the current symbol
-  - Q: autoformat
-  - dm: delete mark
-
-Motions:
-  - gd/gD/gi go to definition / declaration / implementation
-  - ge/gE: go to next/previous error
-  - gh/gH: go to next/previous git hunk
-
-Operators:
-  - <C-c>: comment/uncomment (vim-commentary); <C-c><C-c> acts on current line
-
-Text objects:
-  - <CR>: "smart" TS query: comments, function calls/definitions, classes, loops, if statements, arguments
-  - a<CR>: "smart" TS container: classes, functions, structs, methods
-  - n (next) and l (last) pairs / quotes / separators / arguments
-  - ia/aa: arguments
-  - ih: git hunks
-
-Completion:
-  - <C-space>: manually trigger completion
-  - <tab>/<S-tab>: navigate completions
-  - <cr>: accept completion
-  - <c-k>: bigger preview window
-  - <c-n>: jump to next placeholder in snippet
-
-Git:
-  - <Leader>g: open git menu
-  - <Leader>hs: stage hunk (line or cursor)
-  - <Leader>hS: stage whole buffer
-  - <Leader>hu: undo staging hunk
-  - <Leader>hU: undo all staging
-  - <Leader>hr: reset hunk (line or cursor)
-  - <Leader>hR: reset whole buffer
-  - <Leader>hp: preview hunk
-
-Telescope:
-  - <Leader>ff: find file
-  - <Leader>fg: grep multiple files
-  - <Leader>fb: find buffer
-  - <Leader>f/: find within this buffer
-  - <Leader>fr: find references to symbol under cursor
-  - <Leader>fs: find LSP symbols in this buffer
-  - <Leader>fS: find LSP symbols in the workspace
-  - <Leader>fd: find LSP diagnostics in this buffer
-  - <Leader>fD: find LSP diagnostics in the workspace
-  - <Leader>ft: find TODO/etc comments in the project
-
---]]
-
 -- Load initial config from vimrc
 vim.cmd 'source ~/.vim/vimrc'
+
+-- Basic settings specific to nvim
+vim.opt.foldcolumn = '1' -- Always display foldcolumn to avoid jitter on folding
+vim.opt.signcolumn = 'yes' -- Always display signcolumn to avoid jitter on LSP diagnostics
+vim.opt.mouse = 'a' -- Enable mouse interaction
+
+-- When hovering over a line with diagnostics, show them in a floating window
+vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line", focusable = false })'
 
 --[[
 
 TODO:
+ - Consider removing:
+   - lualine
+   - nvim-web-devicons
+   - todo-comments
  - Orgmode
- - Toggle quickfix
  - DAP
  - Copilot (once text flickering issue is fixed: https://github.com/ms-jpq/coq_nvim/issues/379)
 
 --]]
 
 -- Plugins: managed by Packer (to bootstrap: must first install manually git)
+-- Each plugin's configuration is handled next to its installation.
+-- NOTE: remember to `source $MYVIMRC | PackerCompile` after making changes!
 require('packer').startup(function()
-    -- Packer: manages itself
+    ---- Packer: manages itself
     use 'wbthomason/packer.nvim'
 
-    -- Editing
+    ---- Which-key: manages keybindings
     use {
-        'tpope/vim-surround', -- Text objects for surroundings
+        'folke/which-key.nvim',
+        config = function()
+            local wk = require('which-key')
+            wk.setup {
+                plugins = {registers = false},
+                motions = {count = false},  -- Disable WhichKey for actions like "c3..."
+            }
+
+            -- Assign readable labels to default key maps
+            wk.register({
+                ['<C-_>'] = 'Clear highlighting',
+                ['<C-h>'] = 'Window left',
+                ['<C-j>'] = 'Window down',
+                ['<C-k>'] = 'Window up',
+                ['<C-l>'] = 'Window right',
+                ['<A-h>'] = 'Buffer next',
+                ['<A-l>'] = 'Buffer previous',
+                ['/'] = 'Search next',
+                ['?'] = 'Search previous',
+                ['Y'] = 'Yank to end of line',
+                ['.'] = 'Repeat',
+                ['u'] = 'Undo',
+                ['U'] = 'which_key_ignore',
+                ['<C-r>'] = 'Redo',
+                ['<C-Space>'] = 'Autocomplete',
+            })
+        end
+    }
+
+    ---- Editing
+    use 'wellle/targets.vim' -- Advanced pair text objects
+
+    use { -- Text objects for surroundings
+        'tpope/vim-surround',
         requires = { 'tpope/vim-repeat' }
     }
-    use 'wellle/targets.vim' -- Advanced pair text objects
-    use 'tpope/vim-commentary' -- Operator for commenting/uncommenting
-    use 'RRethy/nvim-treesitter-textsubjects' -- Context-sensitive treesitter text objects
-    use 'ntpeters/vim-better-whitespace' -- Trim trailing whitespace
 
-    -- Aesthetics
-    use 'sainnhe/sonokai' -- Color scheme
-    use 'lukas-reineke/indent-blankline.nvim' -- Indent guides
-    use 'RRethy/vim-illuminate' -- Highlight matches for symbol under cursor
-    use 'kshenoy/vim-signature' -- Show marks in sign column
-    use {
-      "folke/todo-comments.nvim",  -- Highlight TODO, etc
-      requires = "nvim-lua/plenary.nvim",
+    use { -- Operator for commenting/uncommenting
+        'tpope/vim-commentary',
+        after = 'which-key.nvim',
+        config = function()
+            local wk = require('which-key')
+            wk.register({['<C-c>'] = {'<Plug>Commentary', 'Comment'}})
+            wk.register({['<C-c><C-c>'] = {'<Plug>CommentaryLine', 'Comment line'}})
+            wk.register({['<C-c>'] = {'<Plug>Commentary', 'Comment'}}, {mode = 'x'})
+            wk.register({['<C-c>'] = {'<Plug>Commentary', 'Comment'}}, {mode = 'o'})
+        end
+
     }
 
-    -- Autoformatting (several advantages over LSP formatting)
-    use 'sbdchd/neoformat'
-
-    -- Autocompletion
-    use {
-        'ms-jpq/coq_nvim', -- Completion engine
-        branch = 'coq' -- NOTE: on first use, do :COQdeps
+    use { -- Trim trailing whitespace
+        'ntpeters/vim-better-whitespace',
+        setup = function()
+            vim.g.better_whitespace_enabled = 0 -- Don't highlight trailing whitespace
+            vim.g.strip_whitespace_on_save = 1
+            vim.g.strip_whitespace_confirm = 0
+            vim.g.strip_only_modified_lines = 1 -- Can use :StripWhitespace to get the rest
+        end
     }
 
-    -- LSP
-    use 'neovim/nvim-lspconfig' -- Builtin configs for common language servers
-    use 'williamboman/nvim-lsp-installer' -- Installs LSPs locally
-    use 'ray-x/lsp_signature.nvim' -- Display function signature helper
+    use { -- Autoformatting
+        'sbdchd/neoformat',
+        after = 'which-key.nvim',
+        config = function()
+            local wk = require('which-key')
+            wk.register({Q = {':Neoformat<CR>', 'Format file'}}, {silent = false})
+            wk.register({Q = {':Neoformat! &ft<CR>', 'Format lines'}}, {silent = false, mode='v'})
 
-    -- Treesitter
-    use {
-        'nvim-treesitter/nvim-treesitter', -- Language parsers
-        run = ':TSUpdate',
+            -- Run both isort and black on Python files
+            vim.g.neoformat_enabled_python = { 'isort', 'black' }
+            vim.cmd('autocmd FileType python let b:neoformat_run_all_formatters = 1')
+        end
     }
 
-    -- Git
-    use 'tpope/vim-fugitive' -- Git menu
-    use {
-        'lewis6991/gitsigns.nvim', -- Git signs, hunk navigation, and staging
+    use { -- Autocompletion
+        'ms-jpq/coq_nvim',
+        branch = 'coq', -- NOTE: on first use, do :COQdeps
+        config = function()
+            vim.g.coq_settings = {
+                auto_start = 'shut-up', -- Autostart without welcome message
+                ['keymap.jump_to_mark'] = '',
+                ['clients.snippets.warn'] = {}, -- Disable warning about not loading default snippets
+                ['display.pum.fast_close'] = false, -- Prevent flickering by keeping old suggestions open
+            }
+        end
+    }
+
+    ---- Git
+    use { -- Git menu
+        'tpope/vim-fugitive',
+        after = 'which-key.nvim',
+        config = function()
+            require('which-key').register({
+                ['<Leader>g'] = {
+                    name = 'git',
+                    g = {':Git<CR>', 'Menu'}
+                }
+            })
+        end
+    }
+
+    use { -- Git gutter signs, hunk navigation, and staging
+        'lewis6991/gitsigns.nvim',
         requires = {
             'nvim-lua/plenary.nvim',
             'tpope/vim-repeat'
-          }
+        },
+        after = 'which-key.nvim',
+        config = function()
+            require('gitsigns').setup({
+                keymaps = {},
+                -- This callback configures gitsigns when it attaches to a buffer
+                on_attach = function(bufnr)
+                    local wk = require('which-key')
+
+                    wk.register({
+                        n = {'<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>', 'Next hunk'},
+                        N = {'<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>', 'Previous hunk'},
+                        s = {'<cmd>lua require"gitsigns".stage_hunk()<CR>', 'Stage hunk'},
+                        S = {'<cmd>lua require"gitsigns".stage_buffer()<CR>', 'Stage everything'},
+                        u = {'<cmd>lua require"gitsigns".undo_stage_hunk()<CR>', 'Undo staging'},
+                        U = {'<cmd>lua require"gitsigns".reset_buffer_index()<CR>', 'Undo everything'},
+                        r = {'<cmd>lua require"gitsigns".reset_hunk()<CR>', 'Reset hunk'},
+                        R = {'<cmd>lua require"gitsigns".reset_buffer()<CR>', 'Reset everything'},
+                        p = {'<cmd>lua require"gitsigns".preview_hunk()<CR>', 'Preview hunk'},
+                    }, {buffer=bufnr, prefix='<Leader>g'})
+
+                    wk.register({
+                        s = {'<cmd>lua require"gitsigns".stage_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>', 'Stage lines'},
+                        r = {'<cmd>lua require"gitsigns".reset_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>', 'Reset lines'},
+                    }, {buffer=bufnr, prefix='<Leader>g', mode='v'})
+
+                    wk.register(
+                        {ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'}},
+                        {buffer=bufnr, mode='o'}
+                    )
+                    wk.register(
+                        {ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'}},
+                        {buffer=bufnr, mode='x'}
+                    )
+                end
+            })
+        end
     }
 
-    -- Telescope
+    ---- Treesitter
     use {
-        'nvim-telescope/telescope.nvim', -- Fuzzy finder
-        requires = { 'nvim-lua/plenary.nvim' }
+        'nvim-treesitter/nvim-treesitter',  -- Parsers
+        run = ':TSUpdate',
+        config = function()
+            require('nvim-treesitter.configs').setup {
+                -- Make sure these parsers are installed, and install them if missing
+                ensure_installed = {
+                    'bash', 'c', 'dockerfile', 'json', 'python', 'lua', 'vim', 'yaml'
+                },
+                -- Highlighting with TS
+                highlight = {
+                    enable = true,
+                    -- Enables vim's builtin regex-based highlighting for indent/etc;
+                    -- may have a performance penalty
+                    additional_vim_regex_highlighting = true,
+                },
+                -- Context-sensitive TS text objects
+                textsubjects = {
+                    enable = true,
+                    keymaps = {
+                        ["<cr>"] = 'textsubjects-smart', -- Local scope
+                        ["a<cr>"] = 'textsubjects-container-outer', -- Local container
+                    }
+                },
+            }
+        end
     }
-    use {
-        'nvim-telescope/telescope-fzf-native.nvim', -- Fast sorter for Telescope
+
+    use { -- Context-sensitive syntax-aware text objects
+        'RRethy/nvim-treesitter-textsubjects',
+        after = 'nvim-treesitter'
+    }
+
+    ---- Telescope
+    use { -- Fuzzy finder
+        'nvim-telescope/telescope.nvim',
+        requires = { 'nvim-lua/plenary.nvim' },
+        after = {'which-key.nvim', 'telescope-fzf-native.nvim'},
+        config = function()
+            require('telescope').load_extension('fzf')  -- Use native fzf sorter
+
+            require('which-key').register({
+                ['<Leader>f'] = {
+                    name = 'find',
+                    f = {"<cmd>lua require('telescope.builtin').find_files()<cr>", 'Files'},
+                    g = {"<cmd>lua require('telescope.builtin').live_grep()<cr>", 'Grep'},
+                    b = {"<cmd>lua require('telescope.builtin').buffers()<cr>", 'Buffers'},
+                    ['/'] = {"<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>", 'Fuzzy search'},
+                    r = {"<cmd>lua require('telescope.builtin').lsp_references()<cr>", 'References'},
+                    s = {"<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>", 'Symbols in the buffer'},
+                    S = {"<cmd>lua require('telescope.builtin').lsp_workspace_symbols()<cr>", 'Symbols in the workspace'},
+                    t = {':TodoTelescope<CR>', 'TODO comments'},
+                }
+            })
+        end
+    }
+
+    use { -- Fast sorter for Telescope
+        'nvim-telescope/telescope-fzf-native.nvim',
         run = 'make'
     }
 
-    -- Misc
-    use 'antoinemadec/FixCursorHold.nvim' -- Enable short CursorHold updatetime without writing swap too often
+    ---- Language server
+    use 'neovim/nvim-lspconfig' -- Builtin configs for common language servers
+    use 'ray-x/lsp_signature.nvim' -- Display function signature helper
+    use 'RRethy/vim-illuminate' -- Highlight matches for symbol under cursor
+    use 'williamboman/nvim-lsp-installer' -- Installs LSPs locally
+    -- LSP config finished after plugins block
+
+    ---- Aesthetics
+    use 'lukas-reineke/indent-blankline.nvim' -- Indent guides
+
+    use { -- Show marks in sign column
+        'kshenoy/vim-signature',
+        after = 'which-key.nvim',
+        config = function()
+            require('which-key').register({
+                ['m'] = 'Set mark',
+                ['dm'] = 'Delete mark',
+            })
+        end
+    }
+
+    use { -- Color scheme
+        'sainnhe/sonokai',
+        config = function()
+            vim.cmd 'colorscheme sonokai'
+        end
+    }
+
+    use { -- Icons for various things
+        'kyazdani42/nvim-web-devicons',
+        config = function()
+            require('nvim-web-devicons').setup {}
+        end
+    }
+
+    use {  -- Highlight TODO, etc
+      "folke/todo-comments.nvim",
+      requires = "nvim-lua/plenary.nvim",
+      config = function()
+            require('todo-comments').setup {}
+      end
+    }
+
+    use { -- Status line
+        'nvim-lualine/lualine.nvim',
+        config = function()
+            local lualine = require('lualine')
+            local lualine_config = lualine.get_config()
+
+            lualine_config.options = {
+                theme = 'sonokai',
+                section_separators = { left = '', right = ''},
+                component_separators = { left = '', right = ''},
+            }
+            lualine_config.extensions = { 'quickfix', 'fugitive' }
+
+            -- Fix diagnostic colors, which are broken in sonokai
+            lualine_config.sections.lualine_b[3].diagnostics_color = {
+                    error = { fg = '#fc5d7c' },
+                    warn = { fg = '#e7c664' },
+                    info = { fg = '#76cce0' },
+                    hint = { fg = '#9ed072' },
+            }
+            lualine.setup(lualine_config)
+
+            vim.opt.showmode = false  -- Lualine will show the mode for us
+        end
+    }
+
+    ---- Misc
+    use { -- Enable short CursorHold updatetime without writing swap too often
+        'antoinemadec/FixCursorHold.nvim',
+        setup = function()
+            vim.g.cursorhold_updatetime = 100
+        end
+    }
+
+    use { -- Make quickfix behavior more convenient
+        'romainl/vim-qf',
+    }
 end)
 
----- Mappings
-local map = vim.api.nvim_set_keymap
+---- Other mappings
+local wk = require('which-key')
+wk.register({
+    ['<Leader>e'] = {
+        name = 'errors',
+        l = {'<cmd>lua vim.diagnostic.setloclist()<CR>', 'Errors into loclist'},
+        q = {'<cmd>lua vim.diagnostic.setqflist()<CR>', 'Errors into quickfix list'},
+        n = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
+        N = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
+    }
+})
+wk.register({
+    ['<Leader>en'] = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
+    ['<Leader>eN'] = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
+}, {mode = 'o'})
+wk.register({
+    ['<Leader>en'] = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
+    ['<Leader>eN'] = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
+}, {mode = 'x'})
 
--- Toggle commenting with <C-c>.
---  - <C-c> in normal mode starts a comment operator
---  - <C-c><C-c> or <C-c>c in normal mode comments one line
---  - <C-c> in visual mode or as an operator comments
-map('n', '<C-c>', '<Plug>Commentary', { silent = true })
-map('n', '<C-c><C-c>', '<Plug>CommentaryLine', { silent = true })
-map('n', '<C-c>c', '<Plug>CommentaryLine', { silent = true })
-map('x', '<C-c>', '<Plug>Commentary', { silent = true })
-map('o', '<C-c>', '<Plug>Commentary', { silent = true })
-
--- Q runs autoformatting
-map('n', 'Q', ':Neoformat<CR>', {})
-
--- <Leader>g opens fugitive status
-map('n', '<Leader>g', ':Git<CR>', {})
-
--- gh / gH: go to next/previous hunk
-map('n', 'gh', ']c', {})
-map('n', 'gH', '[c', {})
-
--- Telescope mappings
-map('n', '<Leader>ff', "<cmd>lua require('telescope.builtin').find_files()<cr>", {})
-map('n', '<Leader>fg', "<cmd>lua require('telescope.builtin').live_grep()<cr>", {})
-map('n', '<Leader>fb', "<cmd>lua require('telescope.builtin').buffers()<cr>", {})
-map('n', '<Leader>f/', "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>", {})
-map('n', '<Leader>fr', "<cmd>lua require('telescope.builtin').lsp_references()<cr>", {})
-map('n', '<Leader>fs', "<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>", {})
-map('n', '<Leader>fS', "<cmd>lua require('telescope.builtin').lsp_workspace_symbols()<cr>", {})
-map('n', '<Leader>fd', "<cmd>lua require('telescope.builtin').lsp_document_diagnostics()<cr>", {})
-map('n', '<Leader>fD', "<cmd>lua require('telescope.builtin').lsp_workspace_diagnostics()<cr>", {})
-map('n', '<Leader>ft', ":TodoTelescope<cr>", {})
-
----- Whitespace trimming
-vim.g.better_whitespace_enabled = 0 -- Don't highlight trailing whitespace
-vim.g.strip_whitespace_on_save = 1
-vim.g.strip_whitespace_confirm = 0
-vim.g.strip_only_modified_lines = 1 -- Can use :StripWhitespace to get the rest
-
---- Highlight TODO comments
-require('todo-comments').setup {}
-
----- Autoformatting
--- Run both isort and black on Python files
-vim.g.neoformat_enabled_python = { 'isort', 'black' }
-vim.cmd('autocmd FileType python let b:neoformat_run_all_formatters = 1')
-
----- Autocompletion
-vim.g.coq_settings = {
-    auto_start = 'shut-up', -- Autostart without welcome message
-    ['keymap.jump_to_mark'] = '<c-n>',
-    ['clients.snippets.warn'] = {}, -- Disable warning about not loading default snippets
-    ['display.pum.fast_close'] = false, -- Prevent flickering by keeping old suggestions open
-}
-
----- LSP
+---- LSP setup
 -- See: https://github.com/neovim/nvim-lspconfig
 
--- Once attached to language server, setup keymaps
+-- Setup function which runs when we connect to a language server
 local on_lsp_attach = function(client, bufnr)
-    local function buf_set_keymap(mode, mapping, command)
-        vim.api.nvim_buf_set_keymap(bufnr, mode, mapping, command, { noremap = true })
-    end
-
-    -- Mappings: UI
-    buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>')
-    buf_set_keymap('n', '<c-s>', '<cmd>lua vim.lsp.buf.signature_help()<CR>')
-    buf_set_keymap('i', '<c-s>', '<cmd>lua vim.lsp.buf.signature_help()<CR>')
-
-    buf_set_keymap('n', '<Leader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>')
-    buf_set_keymap('n', '<Leader>wd', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>')
-    buf_set_keymap('n', '<Leader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>')
-
-    -- Mappings: editing
-    buf_set_keymap('n', '<Leader>r', '<cmd>lua vim.lsp.buf.rename()<cr>')
-    buf_set_keymap('n', '<Leader>a', '<cmd>lua vim.lsp.buf.code_action()<CR>')
-    buf_set_keymap('v', '<Leader>a', '<cmd>lua vim.lsp.buf.range_code_action()<CR>')
-
-    -- Mappings: navigation
-    buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
-    buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
-    buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
-
-    -- ge/gE: go to next/prev error
-    buf_set_keymap('n', 'ge', '<cmd>lua vim.diagnostic.goto_next()<CR>')
-    buf_set_keymap('x', 'ge', '<cmd>lua vim.diagnostic.goto_next()<CR>')
-    buf_set_keymap('o', 'ge', '<cmd>lua vim.diagnostic.goto_next()<CR>')
-
-    buf_set_keymap('n', 'gE', '<cmd>lua vim.diagnostic.goto_prev()<CR>')
-    buf_set_keymap('x', 'gE', '<cmd>lua vim.diagnostic.goto_prev()<CR>')
-    buf_set_keymap('o', 'gE', '<cmd>lua vim.diagnostic.goto_prev()<CR>')
-
-    -- Setup lsp_signature to display function signature on <C-s>
+    -- Attach illuminate and lsp_signature
+    require('illuminate').on_attach(client)
     require('lsp_signature').on_attach({
         bind = true,
         hi_parameter = 'Search',
@@ -247,8 +358,34 @@ local on_lsp_attach = function(client, bufnr)
         hint_enable = false,
     })
 
-    -- Setup vim-illuminate to highlight symbols under the cursor
-    require('illuminate').on_attach(client)
+    --Assign LSP-specific keybindings
+    local wk = require('which-key')
+    wk.register({
+        K = {'<cmd>lua vim.lsp.buf.hover()<CR>', 'Get symbol info'},
+        gd = {'<cmd>lua vim.lsp.buf.definition()<CR>', 'Go to definition'},
+        gD = {'<cmd>lua vim.lsp.buf.declaration()<CR>', 'Go to declaration'},
+        gi = {'<cmd>lua vim.lsp.buf.implementation()<CR>', 'Go to implementation'},
+        gt = {'<cmd>lua vim.lsp.buf.type_definition()<CR>', 'Go to type definition'},
+        gr = {'<cmd>lua vim.lsp.buf.references()<CR>', 'Get references in quickfix'},
+        ['<Leader>r'] = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
+        ['<Leader>a'] = {'<cmd>lua vim.lsp.buf.code_action()<CR>', 'Code action'},
+        ['<Leader>w'] = {
+            name = 'workspace',
+            a = {'<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', 'Add workspace folder'},
+            d = {'<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', 'Delete workspace folder'},
+            l = {'<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', 'List workspace folders'},
+        }
+    }, {buffer = bufnr})
+
+    wk.register(
+        {['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'}},
+        {buffer = bufnr, mode='i'}
+    )
+
+    wk.register(
+        {['<Leader>a'] = {'<cmd>lua vim.lsp.buf.range_code_action()<CR>', 'Code action'}},
+        {buffer = bufnr, mode='v'}
+    )
 end
 
 -- For each language server installed with nvim-lsp-installer, configure
@@ -274,46 +411,6 @@ require('nvim-lsp-installer').on_server_ready(function(server)
     server:setup(options)
 end)
 
--- NOTE: if using python with pyright and pyenv, activate the pyenv virtualenv
+-- NOTE:
+-- if using python with pyright and pyenv, activate the pyenv virtualenv
 -- first, then use `pyenv pyright` to generate the pyright config
-
--- When hovering over a line with diagnostics, show them in a floating window
-vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line", focusable = false })'
-
----- Treesitter and treesitter-textsubjects
-require('nvim-treesitter.configs').setup {
-    -- Make sure these parsers are installed, and install them if missing
-    ensure_installed = {
-        'bash', 'c', 'dockerfile', 'json', 'python', 'lua', 'vim', 'yaml'
-    },
-    -- Highlighting with TS
-    highlight = {
-        enable = true,
-        -- Enables vim's builtin regex-based highlighting for indent/etc;
-        -- may have a performance penalty
-        additional_vim_regex_highlighting = true,
-    },
-    -- Context-sensitive TS text objects
-    textsubjects = {
-        enable = true,
-        keymaps = {
-            ["<cr>"] = 'textsubjects-smart', -- Local scope
-            ["a<cr>"] = 'textsubjects-container-outer', -- Local container
-        }
-    },
-}
-
----- gitsigns
-require('gitsigns').setup()
-
----- Telescope
-require('telescope').load_extension('fzf')
-
----- Aesthetics
-vim.cmd 'colorscheme sonokai'
-vim.opt.foldcolumn = '1' -- Always display foldcolumn to avoid jitter on folding
-vim.opt.signcolumn = 'yes' -- Always display signcolumn to avoid jitter on LSP diagnostics
-
----- Misc
-vim.opt.mouse = 'a' -- Enable mouse interaction
-vim.g.cursorhold_updatetime = 100 -- Trigger cursorhold events every 100ms (swap remains 4000ms)

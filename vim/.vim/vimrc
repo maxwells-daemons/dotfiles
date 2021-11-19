@@ -19,14 +19,14 @@ nnoremap <silent> <C-_> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR
 nnoremap ' `
 
 " Move between splits with <Ctrl>-HJKL
+nmap <C-h> <C-W>h
 nmap <C-j> <C-W>j
 nmap <C-k> <C-W>k
-nmap <C-h> <C-W>h
 nmap <C-l> <C-W>l
 
 " Cycle buffers with <Shift>-HL
-nmap <S-h> :bnext<CR>
-nmap <S-l> :bprevious<CR>
+nmap <A-h> :bnext<CR>
+nmap <A-l> :bprevious<CR>
 
 " Make Y work like C and D
 nmap Y y$
@@ -56,8 +56,8 @@ set ignorecase smartcase " Only capital searches are case-sensitive
 set gdefault " Replaces are global by default
 
 " Regex search by default
-nmap / /\v
-nmap ? ?\v
+nnoremap / /\v
+nnoremap ? ?\v
 
 """ Wildmenu
 set wildmode=longest:full,full  " Bash-like wildmenu tab completion
