@@ -15,13 +15,12 @@ vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line
 --[[
 
 TODO:
+ - Orgmode
+ - Copilot (once text flickering issue is fixed: https://github.com/ms-jpq/coq_nvim/issues/379)
+ - DAP (once it's ready)
  - Consider removing:
    - lualine
    - nvim-web-devicons
-   - todo-comments
- - Orgmode
- - DAP
- - Copilot (once text flickering issue is fixed: https://github.com/ms-jpq/coq_nvim/issues/379)
 
 --]]
 
@@ -187,7 +186,7 @@ require('packer').startup(function()
             require('nvim-treesitter.configs').setup {
                 -- Make sure these parsers are installed, and install them if missing
                 ensure_installed = {
-                    'bash', 'c', 'dockerfile', 'json', 'python', 'lua', 'vim', 'yaml'
+                    'comment', 'bash', 'c', 'dockerfile', 'json', 'python', 'lua', 'vim', 'yaml'
                 },
                 -- Highlighting with TS
                 highlight = {
@@ -231,7 +230,6 @@ require('packer').startup(function()
                     r = {"<cmd>lua require('telescope.builtin').lsp_references()<cr>", 'References'},
                     s = {"<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>", 'Symbols in the buffer'},
                     S = {"<cmd>lua require('telescope.builtin').lsp_workspace_symbols()<cr>", 'Symbols in the workspace'},
-                    t = {':TodoTelescope<CR>', 'TODO comments'},
                 }
             })
         end
@@ -251,17 +249,7 @@ require('packer').startup(function()
 
     ---- Aesthetics
     use 'lukas-reineke/indent-blankline.nvim' -- Indent guides
-
-    use { -- Show marks in sign column
-        'kshenoy/vim-signature',
-        after = 'which-key.nvim',
-        config = function()
-            require('which-key').register({
-                ['m'] = 'Set mark',
-                ['dm'] = 'Delete mark',
-            })
-        end
-    }
+    use 'kshenoy/vim-signature' -- Show marks in sign column
 
     use { -- Color scheme
         'sainnhe/sonokai',
@@ -275,14 +263,6 @@ require('packer').startup(function()
         config = function()
             require('nvim-web-devicons').setup {}
         end
-    }
-
-    use {  -- Highlight TODO, etc
-      "folke/todo-comments.nvim",
-      requires = "nvim-lua/plenary.nvim",
-      config = function()
-            require('todo-comments').setup {}
-      end
     }
 
     use { -- Status line
@@ -321,6 +301,18 @@ require('packer').startup(function()
 
     use { -- Make quickfix behavior more convenient
         'romainl/vim-qf',
+        config = function()
+            vim.cmd [[
+            function! QFMappings()
+                nmap <buffer> <A-h> <Plug>(qf_older)
+                nmap <buffer> <A-l> <Plug>(qf_newer)
+                nmap <buffer> {     <Plug>(qf_previous_file)
+                nmap <buffer> }     <Plug>(qf_next_file)
+            endfunction
+
+            autocmd FileType qf call QFMappings()
+            ]]
+        end
     }
 end)
 
