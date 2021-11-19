@@ -5,17 +5,20 @@
 
 Commands:
   - <C-/>: clear search highlight
+  - <C-s>: show function signature helper
   - <C-hjkl>: navigate splits
   - <S-hl>: cycle buffers
   - <Leader>r: rename
   - <Leader>a: code action
-  - <Leader>e: see error
-  - K: view LSP help (<Leader>k views signature help)
+  - <Leader>wa: add workspace folder
+  - <Leader>wd: delete workspace folder
+  - <Leader>wl: list workspace folders
+  - K: view LSP help for the current symbol
   - Q: autoformat
   - dm: delete mark
 
 Motions:
-  - gd/gD/gi/gr: go to definition / declaration / implementation / references
+  - gd/gD/gi go to definition / declaration / implementation
   - ge/gE: go to next/previous error
   - gh/gH: go to next/previous git hunk
 
@@ -35,7 +38,6 @@ Completion:
   - <cr>: accept completion
   - <c-k>: bigger preview window
   - <c-n>: jump to next placeholder in snippet
-  - <c-r>: accept copilot suggestion
 
 Git:
   - <Leader>g: open git menu
@@ -57,6 +59,7 @@ Telescope:
   - <Leader>fS: find LSP symbols in the workspace
   - <Leader>fd: find LSP diagnostics in this buffer
   - <Leader>fD: find LSP diagnostics in the workspace
+  - <Leader>ft: find TODO/etc comments in the project
 
 --]]
 
@@ -69,6 +72,7 @@ TODO:
  - Orgmode
  - Toggle quickfix
  - DAP
+ - Copilot (once text flickering issue is fixed: https://github.com/ms-jpq/coq_nvim/issues/379)
 
 --]]
 
@@ -92,6 +96,10 @@ require('packer').startup(function()
     use 'lukas-reineke/indent-blankline.nvim' -- Indent guides
     use 'RRethy/vim-illuminate' -- Highlight matches for symbol under cursor
     use 'kshenoy/vim-signature' -- Show marks in sign column
+    use {
+      "folke/todo-comments.nvim",  -- Highlight TODO, etc
+      requires = "nvim-lua/plenary.nvim",
+    }
 
     -- Autoformatting (several advantages over LSP formatting)
     use 'sbdchd/neoformat'
@@ -101,13 +109,11 @@ require('packer').startup(function()
         'ms-jpq/coq_nvim', -- Completion engine
         branch = 'coq' -- NOTE: on first use, do :COQdeps
     }
-    use 'github/copilot.vim' -- Github Copilot; NOTE: on first use, do :Copilot setup
-    use 'ms-jpq/coq.thirdparty' -- Integrate coq with copilot
 
     -- LSP
     use 'neovim/nvim-lspconfig' -- Builtin configs for common language servers
     use 'williamboman/nvim-lsp-installer' -- Installs LSPs locally
-    use 'ray-x/lsp_signature.nvim' -- Show function signatures when typing a call
+    use 'ray-x/lsp_signature.nvim' -- Display function signature helper
 
     -- Treesitter
     use {
@@ -134,6 +140,9 @@ require('packer').startup(function()
         'nvim-telescope/telescope-fzf-native.nvim', -- Fast sorter for Telescope
         run = 'make'
     }
+
+    -- Misc
+    use 'antoinemadec/FixCursorHold.nvim' -- Enable short CursorHold updatetime without writing swap too often
 end)
 
 ---- Mappings
@@ -169,12 +178,16 @@ map('n', '<Leader>fs', "<cmd>lua require('telescope.builtin').lsp_document_symbo
 map('n', '<Leader>fS', "<cmd>lua require('telescope.builtin').lsp_workspace_symbols()<cr>", {})
 map('n', '<Leader>fd', "<cmd>lua require('telescope.builtin').lsp_document_diagnostics()<cr>", {})
 map('n', '<Leader>fD', "<cmd>lua require('telescope.builtin').lsp_workspace_diagnostics()<cr>", {})
+map('n', '<Leader>ft', ":TodoTelescope<cr>", {})
 
 ---- Whitespace trimming
 vim.g.better_whitespace_enabled = 0 -- Don't highlight trailing whitespace
 vim.g.strip_whitespace_on_save = 1
 vim.g.strip_whitespace_confirm = 0
 vim.g.strip_only_modified_lines = 1 -- Can use :StripWhitespace to get the rest
+
+--- Highlight TODO comments
+require('todo-comments').setup {}
 
 ---- Autoformatting
 -- Run both isort and black on Python files
@@ -189,16 +202,6 @@ vim.g.coq_settings = {
     ['display.pum.fast_close'] = false, -- Prevent flickering by keeping old suggestions open
 }
 
--- Note: this is a workaround; see https://github.com/ms-jpq/coq.thirdparty
-require('coq_3p') {
-    { src = "copilot", short_name = "COP", tmp_accept_key = "<c-r>" }
-}
-
--- Prevent copilot from attempting completion in Telescope windows
-vim.g.copilot_filetypes = {
-    TelescopePrompt = false,
-}
-
 ---- LSP
 -- See: https://github.com/neovim/nvim-lspconfig
 
@@ -208,18 +211,24 @@ local on_lsp_attach = function(client, bufnr)
         vim.api.nvim_buf_set_keymap(bufnr, mode, mapping, command, { noremap = true })
     end
 
-    -- LSP mappings
+    -- Mappings: UI
+    buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>')
+    buf_set_keymap('n', '<c-s>', '<cmd>lua vim.lsp.buf.signature_help()<CR>')
+    buf_set_keymap('i', '<c-s>', '<cmd>lua vim.lsp.buf.signature_help()<CR>')
+
+    buf_set_keymap('n', '<Leader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>')
+    buf_set_keymap('n', '<Leader>wd', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>')
+    buf_set_keymap('n', '<Leader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>')
+
+    -- Mappings: editing
     buf_set_keymap('n', '<Leader>r', '<cmd>lua vim.lsp.buf.rename()<cr>')
     buf_set_keymap('n', '<Leader>a', '<cmd>lua vim.lsp.buf.code_action()<CR>')
     buf_set_keymap('v', '<Leader>a', '<cmd>lua vim.lsp.buf.range_code_action()<CR>')
-    buf_set_keymap('n', '<Leader>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>')
-    buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>')
-    buf_set_keymap('n', '<Leader>k', '<cmd>lua vim.lsp.buf.signature_help()<CR>')
 
+    -- Mappings: navigation
     buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
     buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
     buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
-    buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>')
 
     -- ge/gE: go to next/prev error
     buf_set_keymap('n', 'ge', '<cmd>lua vim.diagnostic.goto_next()<CR>')
@@ -230,10 +239,12 @@ local on_lsp_attach = function(client, bufnr)
     buf_set_keymap('x', 'gE', '<cmd>lua vim.diagnostic.goto_prev()<CR>')
     buf_set_keymap('o', 'gE', '<cmd>lua vim.diagnostic.goto_prev()<CR>')
 
-    -- Setup lsp_signature
+    -- Setup lsp_signature to display function signature on <C-s>
     require('lsp_signature').on_attach({
         bind = true,
-        hint_prefix = 'Param ',
+        hi_parameter = 'Search',
+        floating_window = false,  -- Trigger manually with <C-s>
+        hint_enable = false,
     })
 
     -- Setup vim-illuminate to highlight symbols under the cursor
@@ -265,6 +276,9 @@ end)
 
 -- NOTE: if using python with pyright and pyenv, activate the pyenv virtualenv
 -- first, then use `pyenv pyright` to generate the pyright config
+
+-- When hovering over a line with diagnostics, show them in a floating window
+vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line", focusable = false })'
 
 ---- Treesitter and treesitter-textsubjects
 require('nvim-treesitter.configs').setup {
@@ -302,3 +316,4 @@ vim.opt.signcolumn = 'yes' -- Always display signcolumn to avoid jitter on LSP d
 
 ---- Misc
 vim.opt.mouse = 'a' -- Enable mouse interaction
+vim.g.cursorhold_updatetime = 100 -- Trigger cursorhold events every 100ms (swap remains 4000ms)
