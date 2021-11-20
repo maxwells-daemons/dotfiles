@@ -16,6 +16,7 @@ vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line
 
 TODO:
  - Orgmode
+ - Mappings file
  - Copilot (once text flickering issue is fixed: https://github.com/ms-jpq/coq_nvim/issues/379)
  - DAP (once it's ready)
  - Consider removing:
@@ -36,6 +37,22 @@ require('packer').startup(function()
         'folke/which-key.nvim',
         config = function()
             local wk = require('which-key')
+
+            -- Readable names for custom text objects
+            local objects = require('which-key.plugins.presets').objects
+            objects['af'] = 'a function'
+            objects['if'] = 'inner function'
+            objects['ac'] = 'a comment'
+            objects['ic'] = 'a comment'
+            objects['aC'] = 'a class'
+            objects['iC'] = 'inner class'
+            objects['ai'] = 'a conditional'
+            objects['ii'] = 'inner conditional'
+            objects['al'] = 'a loop'
+            objects['il'] = 'inner loop'
+            objects['<cr>'] = 'scope node'
+            objects['a<cr>'] = 'containing node'
+
             wk.setup {
                 plugins = {registers = false},
                 motions = {count = false},  -- Disable WhichKey for actions like "c3..."
@@ -166,10 +183,12 @@ require('packer').startup(function()
                     }, {buffer=bufnr, prefix='<Leader>g', mode='v'})
 
                     wk.register(
+                        {ag = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'}},
                         {ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'}},
                         {buffer=bufnr, mode='o'}
                     )
                     wk.register(
+                        {ag = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'}},
                         {ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'}},
                         {buffer=bufnr, mode='x'}
                     )
@@ -195,7 +214,35 @@ require('packer').startup(function()
                     -- may have a performance penalty
                     additional_vim_regex_highlighting = true,
                 },
-                -- Context-sensitive TS text objects
+                -- Expand/reduce visual selection by TD nodes: <C-j>/<C-k> (<C-l> for scope)
+                incremental_selection = {
+                    enable = true,
+                    keymaps = {
+                        node_incremental = "<C-k>",
+                        node_decremental = "<C-j>",
+                        scope_incremental = "<C-l>",
+                    },
+                },
+                -- Text objects for particular types of syntax nodes
+                textobjects = {
+                    select = {
+                        enable = true,
+                        lookahead = true,
+                        keymaps = {
+                            ["af"] = "@function.outer",
+                            ["if"] = "@function.inner",
+                            ["ac"] = "@comment.outer",
+                            ["ic"] = "@comment.outer",
+                            ["aC"] = "@class.outer",
+                            ["iC"] = "@class.inner",
+                            ["ai"] = "@conditional.outer",
+                            ["ii"] = "@conditional.inner",
+                            ["al"] = "@loop.outer",
+                            ["il"] = "@loop.inner",
+                        }
+                    }
+                },
+                -- "Smart" TS text objects
                 textsubjects = {
                     enable = true,
                     keymaps = {
@@ -206,11 +253,8 @@ require('packer').startup(function()
             }
         end
     }
-
-    use { -- Context-sensitive syntax-aware text objects
-        'RRethy/nvim-treesitter-textsubjects',
-        after = 'nvim-treesitter'
-    }
+    use 'nvim-treesitter/nvim-treesitter-textobjects' -- Syntax-aware text objects
+    use 'RRethy/nvim-treesitter-textsubjects' -- "Smart" treesitter text objects
 
     ---- Telescope
     use { -- Fuzzy finder
@@ -372,6 +416,10 @@ local on_lsp_attach = function(client, bufnr)
     wk.register(
         {['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'}},
         {buffer = bufnr, mode='i'}
+    )
+    wk.register(
+        {['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'}},
+        {buffer = bufnr, mode='n'}
     )
 
     wk.register(
