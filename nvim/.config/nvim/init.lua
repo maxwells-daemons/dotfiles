@@ -7,7 +7,6 @@ vim.cmd 'source ~/.vim/vimrc'
 -- Basic settings specific to nvim
 vim.opt.foldcolumn = '1' -- Always display foldcolumn to avoid jitter on folding
 vim.opt.signcolumn = 'yes' -- Always display signcolumn to avoid jitter on LSP diagnostics
-vim.opt.mouse = 'a' -- Enable mouse interaction
 
 -- When hovering over a line with diagnostics, show them in a floating window
 vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line", focusable = false })'
@@ -19,9 +18,6 @@ TODO:
  - Mappings file
  - Copilot (once text flickering issue is fixed: https://github.com/ms-jpq/coq_nvim/issues/379)
  - DAP (once it's ready)
- - Consider removing:
-   - lualine
-   - nvim-web-devicons
 
 --]]
 
@@ -299,39 +295,6 @@ require('packer').startup(function()
         'sainnhe/sonokai',
         config = function()
             vim.cmd 'colorscheme sonokai'
-        end
-    }
-
-    use { -- Icons for various things
-        'kyazdani42/nvim-web-devicons',
-        config = function()
-            require('nvim-web-devicons').setup {}
-        end
-    }
-
-    use { -- Status line
-        'nvim-lualine/lualine.nvim',
-        config = function()
-            local lualine = require('lualine')
-            local lualine_config = lualine.get_config()
-
-            lualine_config.options = {
-                theme = 'sonokai',
-                section_separators = { left = '', right = ''},
-                component_separators = { left = '', right = ''},
-            }
-            lualine_config.extensions = { 'quickfix', 'fugitive' }
-
-            -- Fix diagnostic colors, which are broken in sonokai
-            lualine_config.sections.lualine_b[3].diagnostics_color = {
-                    error = { fg = '#fc5d7c' },
-                    warn = { fg = '#e7c664' },
-                    info = { fg = '#76cce0' },
-                    hint = { fg = '#9ed072' },
-            }
-            lualine.setup(lualine_config)
-
-            vim.opt.showmode = false  -- Lualine will show the mode for us
         end
     }
 
