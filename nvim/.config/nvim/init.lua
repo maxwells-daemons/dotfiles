@@ -15,7 +15,6 @@ vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line
 
 TODO:
  - Orgmode
- - Mappings file
  - Copilot (once text flickering issue is fixed: https://github.com/ms-jpq/coq_nvim/issues/379)
  - DAP (once it's ready)
 
@@ -46,7 +45,7 @@ require('packer').startup(function()
             objects['ii'] = 'inner conditional'
             objects['al'] = 'a loop'
             objects['il'] = 'inner loop'
-            objects['<cr>'] = 'scope node'
+            objects['<cr>'] = 'syntax node'
             objects['a<cr>'] = 'containing node'
 
             wk.setup {
@@ -54,28 +53,115 @@ require('packer').startup(function()
                 motions = {count = false},  -- Disable WhichKey for actions like "c3..."
             }
 
-            -- Assign readable labels to default key maps
+            -- Normal-mode mappings
             wk.register({
-                ['<C-_>'] = 'Clear highlighting',
+                -- UI
                 ['<C-h>'] = 'Window left',
                 ['<C-j>'] = 'Window down',
                 ['<C-k>'] = 'Window up',
                 ['<C-l>'] = 'Window right',
                 ['<A-h>'] = 'Buffer next',
                 ['<A-l>'] = 'Buffer previous',
-                ['/'] = 'Search next',
-                ['?'] = 'Search previous',
+                ['<C-_>'] = 'Clear highlighting',
+                ['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
+                K = {'<cmd>lua vim.lsp.buf.hover()<CR>', 'Get symbol info'},
+                -- Operators
+                ['<C-c>'] = {'<Plug>Commentary', 'Comment'},
+                -- Motions
+                gne = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
+                gpe = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
+                gng = {'<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>', 'Next git hunk'},
+                gpg = {'<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>', 'Previous git hunk'},
+                gd = {'<cmd>lua vim.lsp.buf.definition()<CR>', 'Go to definition'},
+                gD = {'<cmd>lua vim.lsp.buf.declaration()<CR>', 'Go to declaration'},
+                gi = {'<cmd>lua vim.lsp.buf.implementation()<CR>', 'Go to implementation'},
+                gt = {'<cmd>lua vim.lsp.buf.type_definition()<CR>', 'Go to type definition'},
+                gr = {'<cmd>lua vim.lsp.buf.references()<CR>', 'Get references in quickfix'},
+                -- Actions
+                Q = {':Neoformat<CR>', 'Format file'},
+                ['<C-c><C-c>'] = {'<Plug>CommentaryLine', 'Comment line'},
+                ['<Leader>'] = {
+                    r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
+                    a = {'<cmd>lua vim.lsp.buf.code_action()<CR>', 'Code action'},
+                    g = {
+                        name = 'git',
+                        g = {':Git<CR>', 'Menu'},
+                        s = {'<cmd>lua require"gitsigns".stage_hunk()<CR>', 'Stage hunk'},
+                        S = {'<cmd>lua require"gitsigns".stage_buffer()<CR>', 'Stage everything'},
+                        u = {'<cmd>lua require"gitsigns".undo_stage_hunk()<CR>', 'Undo staging'},
+                        U = {'<cmd>lua require"gitsigns".reset_buffer_index()<CR>', 'Undo all staging'},
+                        r = {'<cmd>lua require"gitsigns".reset_hunk()<CR>', 'Reset hunk'},
+                        R = {'<cmd>lua require"gitsigns".reset_buffer()<CR>', 'Reset everything'},
+                        p = {'<cmd>lua require"gitsigns".preview_hunk()<CR>', 'Preview hunk'},
+                    },
+                    f = {
+                        name = 'find',
+                        f = {"<cmd>lua require('telescope.builtin').find_files()<cr>", 'Files'},
+                        g = {"<cmd>lua require('telescope.builtin').live_grep()<cr>", 'Grep'},
+                        b = {"<cmd>lua require('telescope.builtin').buffers()<cr>", 'Buffers'},
+                        ['/'] = {"<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>", 'Fuzzy search'},
+                        r = {"<cmd>lua require('telescope.builtin').lsp_references()<cr>", 'References'},
+                        s = {"<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>", 'Symbols in the buffer'},
+                        S = {"<cmd>lua require('telescope.builtin').lsp_dynamic_workspace_symbols()<cr>", 'Symbols in the workspace'},
+                    },
+                    w = {
+                        name = 'workspace',
+                        a = {'<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', 'Add workspace folder'},
+                        d = {'<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', 'Delete workspace folder'},
+                        l = {'<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', 'List workspace folders'},
+                    },
+                },
+                -- Readable names for builtin mappings
                 ['Y'] = 'Yank to end of line',
-                ['.'] = 'Repeat',
-                ['u'] = 'Undo',
+                ['/'] = 'Search forward',
+                ['?'] = 'Search backward',
+                ['m'] = 'Place mark',
+                ['dm'] = 'Delete mark', -- From Signature
+                -- Ignored mappings
                 ['U'] = 'which_key_ignore',
-                ['<C-r>'] = 'Redo',
-                ['<C-Space>'] = 'Autocomplete',
+                ['<C-Space>'] = 'which_key_ignore',
             })
+
+            -- Visual mappings
+            wk.register({
+                -- Actions
+                Q = {':Neoformat! &ft<CR>', 'Format'},
+                ['<C-c>'] = {'<Plug>Commentary', 'Comment'},
+                ['<Leader>a'] = {'<cmd>lua vim.lsp.buf.range_code_action()<CR>', 'Code action'},
+                ['<Leader>gs'] = {'<cmd>lua require"gitsigns".stage_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>', 'Stage lines'},
+                ['<Leader>gr'] = {'<cmd>lua require"gitsigns".reset_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>', 'Reset lines'},
+                -- Motions
+                gne = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
+                gpe = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
+                gng = {'<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>', 'Next git hunk'},
+                gpg = {'<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>', 'Previous git hunk'},
+                -- Text objects
+                ag = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
+                ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
+            }, { mode = 'x' })
+
+            -- Operator mappings
+            wk.register({
+                -- Motions
+                gne = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
+                gpe = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
+                gng = {'<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>', 'Next git hunk'},
+                gpg = {'<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>', 'Previous git hunk'},
+                -- Text objects
+                ag = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
+                ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
+            }, { mode = 'o' })
+
+            -- Insert mode mappings
+            wk.register(
+                {['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'}},
+                {mode='i'}
+            )
         end
     }
 
     ---- Editing
+    use 'tpope/vim-commentary' -- Operator for commenting/uncommenting
     use 'wellle/targets.vim' -- Advanced pair text objects
 
     use { -- Text objects for surroundings
@@ -83,18 +169,6 @@ require('packer').startup(function()
         requires = { 'tpope/vim-repeat' }
     }
 
-    use { -- Operator for commenting/uncommenting
-        'tpope/vim-commentary',
-        after = 'which-key.nvim',
-        config = function()
-            local wk = require('which-key')
-            wk.register({['<C-c>'] = {'<Plug>Commentary', 'Comment'}})
-            wk.register({['<C-c><C-c>'] = {'<Plug>CommentaryLine', 'Comment line'}})
-            wk.register({['<C-c>'] = {'<Plug>Commentary', 'Comment'}}, {mode = 'x'})
-            wk.register({['<C-c>'] = {'<Plug>Commentary', 'Comment'}}, {mode = 'o'})
-        end
-
-    }
 
     use { -- Trim trailing whitespace
         'ntpeters/vim-better-whitespace',
@@ -108,12 +182,7 @@ require('packer').startup(function()
 
     use { -- Autoformatting
         'sbdchd/neoformat',
-        after = 'which-key.nvim',
         config = function()
-            local wk = require('which-key')
-            wk.register({Q = {':Neoformat<CR>', 'Format file'}}, {silent = false})
-            wk.register({Q = {':Neoformat! &ft<CR>', 'Format lines'}}, {silent = false, mode='v'})
-
             -- Run both isort and black on Python files
             vim.g.neoformat_enabled_python = { 'isort', 'black' }
             vim.cmd('autocmd FileType python let b:neoformat_run_all_formatters = 1')
@@ -134,18 +203,7 @@ require('packer').startup(function()
     }
 
     ---- Git
-    use { -- Git menu
-        'tpope/vim-fugitive',
-        after = 'which-key.nvim',
-        config = function()
-            require('which-key').register({
-                ['<Leader>g'] = {
-                    name = 'git',
-                    g = {':Git<CR>', 'Menu'}
-                }
-            })
-        end
-    }
+    use 'tpope/vim-fugitive' -- Git menu
 
     use { -- Git gutter signs, hunk navigation, and staging
         'lewis6991/gitsigns.nvim',
@@ -153,44 +211,7 @@ require('packer').startup(function()
             'nvim-lua/plenary.nvim',
             'tpope/vim-repeat'
         },
-        after = 'which-key.nvim',
-        config = function()
-            require('gitsigns').setup({
-                keymaps = {},
-                -- This callback configures gitsigns when it attaches to a buffer
-                on_attach = function(bufnr)
-                    local wk = require('which-key')
-
-                    wk.register({
-                        n = {'<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>', 'Next hunk'},
-                        N = {'<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>', 'Previous hunk'},
-                        s = {'<cmd>lua require"gitsigns".stage_hunk()<CR>', 'Stage hunk'},
-                        S = {'<cmd>lua require"gitsigns".stage_buffer()<CR>', 'Stage everything'},
-                        u = {'<cmd>lua require"gitsigns".undo_stage_hunk()<CR>', 'Undo staging'},
-                        U = {'<cmd>lua require"gitsigns".reset_buffer_index()<CR>', 'Undo everything'},
-                        r = {'<cmd>lua require"gitsigns".reset_hunk()<CR>', 'Reset hunk'},
-                        R = {'<cmd>lua require"gitsigns".reset_buffer()<CR>', 'Reset everything'},
-                        p = {'<cmd>lua require"gitsigns".preview_hunk()<CR>', 'Preview hunk'},
-                    }, {buffer=bufnr, prefix='<Leader>g'})
-
-                    wk.register({
-                        s = {'<cmd>lua require"gitsigns".stage_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>', 'Stage lines'},
-                        r = {'<cmd>lua require"gitsigns".reset_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>', 'Reset lines'},
-                    }, {buffer=bufnr, prefix='<Leader>g', mode='v'})
-
-                    wk.register(
-                        {ag = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'}},
-                        {ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'}},
-                        {buffer=bufnr, mode='o'}
-                    )
-                    wk.register(
-                        {ag = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'}},
-                        {ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'}},
-                        {buffer=bufnr, mode='x'}
-                    )
-                end
-            })
-        end
+        config = function() require('gitsigns').setup({ keymaps = {} }) end
     }
 
     ---- Treesitter
@@ -209,15 +230,6 @@ require('packer').startup(function()
                     -- Enables vim's builtin regex-based highlighting for indent/etc;
                     -- may have a performance penalty
                     additional_vim_regex_highlighting = true,
-                },
-                -- Expand/reduce visual selection by TD nodes: <C-j>/<C-k> (<C-l> for scope)
-                incremental_selection = {
-                    enable = true,
-                    keymaps = {
-                        node_incremental = "<C-k>",
-                        node_decremental = "<C-j>",
-                        scope_incremental = "<C-l>",
-                    },
                 },
                 -- Text objects for particular types of syntax nodes
                 textobjects = {
@@ -257,22 +269,7 @@ require('packer').startup(function()
         'nvim-telescope/telescope.nvim',
         requires = { 'nvim-lua/plenary.nvim' },
         after = {'which-key.nvim', 'telescope-fzf-native.nvim'},
-        config = function()
-            require('telescope').load_extension('fzf')  -- Use native fzf sorter
-
-            require('which-key').register({
-                ['<Leader>f'] = {
-                    name = 'find',
-                    f = {"<cmd>lua require('telescope.builtin').find_files()<cr>", 'Files'},
-                    g = {"<cmd>lua require('telescope.builtin').live_grep()<cr>", 'Grep'},
-                    b = {"<cmd>lua require('telescope.builtin').buffers()<cr>", 'Buffers'},
-                    ['/'] = {"<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>", 'Fuzzy search'},
-                    r = {"<cmd>lua require('telescope.builtin').lsp_references()<cr>", 'References'},
-                    s = {"<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>", 'Symbols in the buffer'},
-                    S = {"<cmd>lua require('telescope.builtin').lsp_workspace_symbols()<cr>", 'Symbols in the workspace'},
-                }
-            })
-        end
+        config = function() require('telescope').load_extension('fzf') end
     }
 
     use { -- Fast sorter for Telescope
@@ -323,32 +320,9 @@ require('packer').startup(function()
     }
 end)
 
----- Other mappings
-local wk = require('which-key')
-wk.register({
-    ['<Leader>e'] = {
-        name = 'errors',
-        l = {'<cmd>lua vim.diagnostic.setloclist()<CR>', 'Errors into loclist'},
-        q = {'<cmd>lua vim.diagnostic.setqflist()<CR>', 'Errors into quickfix list'},
-        n = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
-        N = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
-    }
-})
-wk.register({
-    ['<Leader>en'] = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
-    ['<Leader>eN'] = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
-}, {mode = 'o'})
-wk.register({
-    ['<Leader>en'] = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
-    ['<Leader>eN'] = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
-}, {mode = 'x'})
-
 ---- LSP setup
--- See: https://github.com/neovim/nvim-lspconfig
-
--- Setup function which runs when we connect to a language server
+-- When we connect to a language server, setup illuminate and lsp_signature
 local on_lsp_attach = function(client, bufnr)
-    -- Attach illuminate and lsp_signature
     require('illuminate').on_attach(client)
     require('lsp_signature').on_attach({
         bind = true,
@@ -356,39 +330,6 @@ local on_lsp_attach = function(client, bufnr)
         floating_window = false,  -- Trigger manually with <C-s>
         hint_enable = false,
     })
-
-    --Assign LSP-specific keybindings
-    local wk = require('which-key')
-    wk.register({
-        K = {'<cmd>lua vim.lsp.buf.hover()<CR>', 'Get symbol info'},
-        gd = {'<cmd>lua vim.lsp.buf.definition()<CR>', 'Go to definition'},
-        gD = {'<cmd>lua vim.lsp.buf.declaration()<CR>', 'Go to declaration'},
-        gi = {'<cmd>lua vim.lsp.buf.implementation()<CR>', 'Go to implementation'},
-        gt = {'<cmd>lua vim.lsp.buf.type_definition()<CR>', 'Go to type definition'},
-        gr = {'<cmd>lua vim.lsp.buf.references()<CR>', 'Get references in quickfix'},
-        ['<Leader>r'] = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
-        ['<Leader>a'] = {'<cmd>lua vim.lsp.buf.code_action()<CR>', 'Code action'},
-        ['<Leader>w'] = {
-            name = 'workspace',
-            a = {'<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', 'Add workspace folder'},
-            d = {'<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', 'Delete workspace folder'},
-            l = {'<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', 'List workspace folders'},
-        }
-    }, {buffer = bufnr})
-
-    wk.register(
-        {['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'}},
-        {buffer = bufnr, mode='i'}
-    )
-    wk.register(
-        {['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'}},
-        {buffer = bufnr, mode='n'}
-    )
-
-    wk.register(
-        {['<Leader>a'] = {'<cmd>lua vim.lsp.buf.range_code_action()<CR>', 'Code action'}},
-        {buffer = bufnr, mode='v'}
-    )
 end
 
 -- For each language server installed with nvim-lsp-installer, configure
