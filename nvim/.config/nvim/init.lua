@@ -14,6 +14,8 @@ vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line
 --[[
 
 TODO:
+ - Change from coq to cmp
+ - Use null-ls for formatting, linting, code actions
  - Copilot (once text flickering issue is fixed: https://github.com/ms-jpq/coq_nvim/issues/379)
  - DAP (once it's ready)
 
@@ -52,6 +54,39 @@ require('packer').startup(function()
                 motions = {count = false},  -- Disable WhichKey for actions like "c3..."
             }
 
+            -- Motions: used in normal, visual, and operator-pending modes
+            local motions = {
+                ['['] = {
+                    name = 'previous',
+                    c = {'<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>', 'Previous change'},
+                    e = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
+                    l = {'<Plug>(qf_loc_previous)', 'Previous loclist'},
+                    L = {':lfirst<CR>', 'First loclist'},
+                    q = {'<Plug>(qf_qf_previous)', 'Previous quickfix'},
+                    Q = {':cfirst<CR>', 'First quickfix'},
+                },
+                [']'] = {
+                    name = 'next',
+                    c = {'<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>', 'Next change'},
+                    e = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
+                    l = {'<Plug>(qf_loc_next)', 'Next loclist'},
+                    L = {':llast<CR>', 'Last loclist'},
+                    q = {'<Plug>(qf_qf_next)', 'Next quickfix'},
+                    Q = {':clast<CR>', 'Last quickfix'},
+                },
+            }
+            wk.register(motions, { mode = 'n' })
+            wk.register(motions, { mode = 'x' })
+            wk.register(motions, { mode = 'o' })
+
+            -- Text objects: used in visual and operator-pending modes
+            local text_objects = {
+                ag = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
+                ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
+            }
+            wk.register(text_objects, { mode = 'x' })
+            wk.register(text_objects, { mode = 'o' })
+
             -- Normal-mode mappings
             wk.register({
                 -- UI
@@ -66,20 +101,17 @@ require('packer').startup(function()
                 K = {'<cmd>lua vim.lsp.buf.hover()<CR>', 'Get symbol info'},
                 -- Operators
                 ['<C-c>'] = {'<Plug>Commentary', 'Comment'},
-                -- Motions
-                gne = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
-                gpe = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
-                gng = {'<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>', 'Next git hunk'},
-                gpg = {'<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>', 'Previous git hunk'},
-                gnh = {'<Plug>VimwikiGoToNextHeader', 'Next Markdown header'},
-                gph = {'<Plug>VimwikiGoToPrevHeader', 'Previous Markdown header'},
-                gd = {'<cmd>lua vim.lsp.buf.definition()<CR>', 'Go to definition'},
-                gD = {'<cmd>lua vim.lsp.buf.declaration()<CR>', 'Go to declaration'},
-                gi = {'<cmd>lua vim.lsp.buf.implementation()<CR>', 'Go to implementation'},
-                gt = {'<cmd>lua vim.lsp.buf.type_definition()<CR>', 'Go to type definition'},
-                gr = {'<cmd>lua vim.lsp.buf.references()<CR>', 'Get references in quickfix'},
+                -- Jumps
+                g = {
+                    d = {'<cmd>lua vim.lsp.buf.definition()<CR>', 'Go to definition'},
+                    D = {'<cmd>lua vim.lsp.buf.declaration()<CR>', 'Go to declaration'},
+                    i = {'<cmd>lua vim.lsp.buf.implementation()<CR>', 'Go to implementation'},
+                    t = {'<cmd>lua vim.lsp.buf.type_definition()<CR>', 'Go to type definition'},
+                    r = {'<cmd>lua vim.lsp.buf.references()<CR>', 'Get references in quickfix'},
+                    p = {'`[v`]', 'Select paste'},
+                },
                 -- Actions
-                Q = {':Neoformat<CR>', 'Format file'},
+                Q = {':Neoformat<CR>', 'Format file'}, -- TODO: make this an operator
                 ['<C-c><C-c>'] = {'<Plug>CommentaryLine', 'Comment line'},
                 ['<Leader>'] = {
                     r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
@@ -122,39 +154,30 @@ require('packer').startup(function()
 
             -- Visual mappings
             wk.register({
-                -- Actions
                 Q = {':Neoformat! &ft<CR>', 'Format'},
                 ['<C-c>'] = {'<Plug>Commentary', 'Comment'},
                 ['<Leader>a'] = {'<cmd>lua vim.lsp.buf.range_code_action()<CR>', 'Code action'},
                 ['<Leader>gs'] = {'<cmd>lua require"gitsigns".stage_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>', 'Stage lines'},
                 ['<Leader>gr'] = {'<cmd>lua require"gitsigns".reset_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>', 'Reset lines'},
-                -- Motions
-                gne = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
-                gpe = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
-                gng = {'<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>', 'Next git hunk'},
-                gpg = {'<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>', 'Previous git hunk'},
-                -- Text objects
-                ag = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
-                ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
             }, { mode = 'x' })
-
-            -- Operator mappings
-            wk.register({
-                -- Motions
-                gne = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
-                gpe = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
-                gng = {'<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>', 'Next git hunk'},
-                gpg = {'<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>', 'Previous git hunk'},
-                -- Text objects
-                ag = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
-                ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
-            }, { mode = 'o' })
 
             -- Insert mode mappings
             wk.register(
                 {['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'}},
                 {mode='i'}
             )
+
+            -- Quickfix menu mappings
+            vim.cmd [[
+            function! QFMappings()
+                nmap <buffer> <A-h> <Plug>(qf_older)
+                nmap <buffer> <A-l> <Plug>(qf_newer)
+                nmap <buffer> {     <Plug>(qf_previous_file)
+                nmap <buffer> }     <Plug>(qf_next_file)
+            endfunction
+
+            autocmd FileType qf call QFMappings()
+            ]]
         end
     }
 
@@ -319,27 +342,12 @@ require('packer').startup(function()
     }
 
     ---- Misc
+    use 'romainl/vim-qf' -- Make quickfix behavior more convenient
+
     use { -- Enable short CursorHold updatetime without writing swap too often
         'antoinemadec/FixCursorHold.nvim',
         setup = function()
             vim.g.cursorhold_updatetime = 100
-        end
-    }
-
-    use { -- Make quickfix behavior more convenient
-        'romainl/vim-qf',
-        -- TODO: move this to "mappings" section
-        config = function()
-            vim.cmd [[
-            function! QFMappings()
-                nmap <buffer> <A-h> <Plug>(qf_older)
-                nmap <buffer> <A-l> <Plug>(qf_newer)
-                nmap <buffer> {     <Plug>(qf_previous_file)
-                nmap <buffer> }     <Plug>(qf_next_file)
-            endfunction
-
-            autocmd FileType qf call QFMappings()
-            ]]
         end
     }
 end)
