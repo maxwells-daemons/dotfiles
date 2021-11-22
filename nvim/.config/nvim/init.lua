@@ -50,7 +50,6 @@ require('packer').startup(function()
             objects['a<cr>'] = 'containing node'
 
             wk.setup {
-                plugins = {registers = false},
                 motions = {count = false},  -- Disable WhichKey for actions like "c3..."
             }
 
@@ -332,7 +331,27 @@ require('packer').startup(function()
 
     ---- Aesthetics
     use 'lukas-reineke/indent-blankline.nvim' -- Indent guides
-    use 'kshenoy/vim-signature' -- Show marks in sign column
+
+    use { -- Show marks in sign column
+        'kshenoy/vim-signature',
+        setup = function()
+            vim.g.SignatureMap = {
+                Leader             =  "m",
+                DeleteMark         =  "dm",
+                PurgeMarks         =  "m<Space>",
+                -- Disable the following mappings
+                ListBufferMarks    =  "", ListBufferMarkers  =  "",
+                PlaceNextMark      =  "", ToggleMarkAtLine   =  "",
+                PurgeMarksAtLine   =  "", PurgeMarkers       =  "",
+                GotoNextLineAlpha  =  "", GotoPrevLineAlpha  =  "",
+                GotoNextSpotAlpha  =  "", GotoPrevSpotAlpha  =  "",
+                GotoNextLineByPos  =  "", GotoPrevLineByPos  =  "",
+                GotoNextSpotByPos  =  "", GotoPrevSpotByPos  =  "",
+                GotoNextMarker     =  "", GotoPrevMarker     =  "",
+                GotoNextMarkerAny  =  "", GotoPrevMarkerAny  =  "",
+            }
+        end
+    }
 
     use { -- Color scheme
         'sainnhe/sonokai',
