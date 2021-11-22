@@ -293,7 +293,7 @@ require('packer').startup(function()
             -- TODO: Pandoc integration
             vim.g.vimwiki_list = {
                 {
-                    path = '~/Media/documents/obsidian/', -- TODO: fix path
+                    path = '~/media/documents/obsidian',
                     syntax = 'markdown',
                     ext = '.md'
                 }
