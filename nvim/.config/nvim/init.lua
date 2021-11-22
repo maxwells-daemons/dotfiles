@@ -14,7 +14,6 @@ vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line
 --[[
 
 TODO:
- - Orgmode
  - Copilot (once text flickering issue is fixed: https://github.com/ms-jpq/coq_nvim/issues/379)
  - DAP (once it's ready)
 
@@ -72,6 +71,8 @@ require('packer').startup(function()
                 gpe = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
                 gng = {'<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>', 'Next git hunk'},
                 gpg = {'<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>', 'Previous git hunk'},
+                gnh = {'<Plug>VimwikiGoToNextHeader', 'Next Markdown header'},
+                gph = {'<Plug>VimwikiGoToPrevHeader', 'Previous Markdown header'},
                 gd = {'<cmd>lua vim.lsp.buf.definition()<CR>', 'Go to definition'},
                 gD = {'<cmd>lua vim.lsp.buf.declaration()<CR>', 'Go to declaration'},
                 gi = {'<cmd>lua vim.lsp.buf.implementation()<CR>', 'Go to implementation'},
@@ -105,10 +106,7 @@ require('packer').startup(function()
                         S = {"<cmd>lua require('telescope.builtin').lsp_dynamic_workspace_symbols()<cr>", 'Symbols in the workspace'},
                     },
                     w = {
-                        name = 'workspace',
-                        a = {'<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', 'Add workspace folder'},
-                        d = {'<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', 'Delete workspace folder'},
-                        l = {'<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', 'List workspace folders'},
+                        name = 'wiki',
                     },
                 },
                 -- Readable names for builtin mappings
@@ -284,6 +282,31 @@ require('packer').startup(function()
     use 'williamboman/nvim-lsp-installer' -- Installs LSPs locally
     -- LSP config finished after plugins block
 
+    ---- Notes
+    use {
+        'vimwiki/vimwiki',
+        config = function()
+            -- TODO: integrate with Obsidian tags by modifying
+            -- s:markdown_syntax.tag_search and s:markdown_syntax.tag_match
+            -- (see: .local/share/nvim/site/pack/packer/start/vimwiki/syntax/vimwiki_markdown.vim)
+
+            -- TODO: Pandoc integration
+            vim.g.vimwiki_list = {
+                {
+                    path = '~/Media/documents/obsidian/', -- TODO: fix path
+                    syntax = 'markdown',
+                    ext = '.md'
+                }
+            }
+            vim.g.vimwiki_key_mappings = {
+                table_mappings = 0, -- Table mappings interfere with autocomplete
+                html = 0,
+            }
+            vim.g.vimwiki_listsyms = ' .oOx' -- Compatibility with Obsidian checkboxes
+            vim.g.vimwiki_auto_chdir = 1 -- Automatically chdir into wiki dir when entering a wiki file
+        end
+    }
+
     ---- Aesthetics
     use 'lukas-reineke/indent-blankline.nvim' -- Indent guides
     use 'kshenoy/vim-signature' -- Show marks in sign column
@@ -305,6 +328,7 @@ require('packer').startup(function()
 
     use { -- Make quickfix behavior more convenient
         'romainl/vim-qf',
+        -- TODO: move this to "mappings" section
         config = function()
             vim.cmd [[
             function! QFMappings()
