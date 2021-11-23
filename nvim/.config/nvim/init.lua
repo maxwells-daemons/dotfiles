@@ -14,9 +14,8 @@ vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line
 --[[
 
 TODO:
- - Configure snippets
- - Use null-ls for formatting, linting, code actions
  - DAP (once it's ready)
+ - Plugin with motions and text objects for parent/child/sibling nodes
 
 --]]
 
@@ -35,24 +34,36 @@ require('packer').startup(function()
 
             -- Readable names for custom text objects
             local objects = require('which-key.plugins.presets').objects
+            -- treesitter-textobjects
             objects['af'] = 'a function'
             objects['if'] = 'inner function'
             objects['ac'] = 'a comment'
             objects['ic'] = 'a comment'
-            objects['aC'] = 'a class'
-            objects['iC'] = 'inner class'
+            objects['aC'] = 'a Class'
+            objects['iC'] = 'inner Class'
             objects['ai'] = 'a conditional'
             objects['ii'] = 'inner conditional'
-            objects['al'] = 'a loop'
-            objects['il'] = 'inner loop'
+            objects['aL'] = 'a Loop'
+            objects['iL'] = 'inner Loop'
+            -- treesitter-textsubjects
             objects['<cr>'] = 'syntax node'
             objects['a<cr>'] = 'containing node'
+            -- textobj-entire
+            objects['ie'] = 'entire buffer'
+            objects['ae'] = 'entire buffer'
+            -- textobj-line
+            objects['il'] = 'inside line (excluding whitespace)'
+            objects['al'] = 'around line (including whitespace)'
+            -- textobj-pastedtext
+            objects['ay'] = 'pasted text'
 
             wk.setup {
                 motions = {count = false},  -- Disable WhichKey for actions like "c3..."
+                plugins = {marks = false},  -- Don't show for marks due to flickering with ``
             }
 
             -- Motions: used in normal, visual, and operator-pending modes
+            -- TODO: stop [c and ]c from interfering with Fugitive
             local motions = {
                 ['['] = {
                     name = 'previous',
@@ -106,11 +117,9 @@ require('packer').startup(function()
                     i = {'<cmd>lua vim.lsp.buf.implementation()<CR>', 'Go to implementation'},
                     t = {'<cmd>lua vim.lsp.buf.type_definition()<CR>', 'Go to type definition'},
                     r = {'<cmd>lua vim.lsp.buf.references()<CR>', 'Get references in quickfix'},
-                    p = {'`[v`]', 'Select paste'},
                 },
                 -- Actions
                 Q = {':Neoformat<CR>', 'Format file'}, -- TODO: make this an operator
-                ['<C-c><C-c>'] = {'<Plug>CommentaryLine', 'Comment line'},
                 ['<Leader>'] = {
                     r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
                     a = {'<cmd>lua vim.lsp.buf.code_action()<CR>', 'Code action'},
@@ -135,9 +144,7 @@ require('packer').startup(function()
                         s = {"<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>", 'Symbols in the buffer'},
                         S = {"<cmd>lua require('telescope.builtin').lsp_dynamic_workspace_symbols()<cr>", 'Symbols in the workspace'},
                     },
-                    w = {
-                        name = 'wiki',
-                    },
+                    w = { name = 'wiki' },
                 },
                 -- Readable names for builtin mappings
                 ['Y'] = 'Yank to end of line',
@@ -190,6 +197,23 @@ require('packer').startup(function()
         requires = { 'tpope/vim-repeat' }
     }
 
+    use {
+        'kana/vim-textobj-entire', -- Text object for the entire buffer
+        requires = { 'kana/vim-textobj-user' }
+    }
+
+    use {
+        'kana/vim-textobj-line', -- Text object for the current line
+        requires = { 'kana/vim-textobj-user' }
+    }
+
+    use {
+        'saaguero/vim-textobj-pastedtext', -- Text object for the last paste
+        requires = { 'kana/vim-textobj-user' },
+        setup = function ()
+            vim.g.pastedtext_select_key = 'ay' -- Map to ay
+        end
+    }
 
     use { -- Trim trailing whitespace
         'ntpeters/vim-better-whitespace',
@@ -333,8 +357,8 @@ require('packer').startup(function()
                             ["iC"] = "@class.inner",
                             ["ai"] = "@conditional.outer",
                             ["ii"] = "@conditional.inner",
-                            ["al"] = "@loop.outer",
-                            ["il"] = "@loop.inner",
+                            ["aL"] = "@loop.outer",
+                            ["iL"] = "@loop.inner",
                         }
                     }
                 },
@@ -390,6 +414,8 @@ require('packer').startup(function()
             }
             vim.g.vimwiki_listsyms = ' .oOx' -- Compatibility with Obsidian checkboxes
             vim.g.vimwiki_auto_chdir = 1 -- Automatically chdir into wiki dir when entering a wiki file
+
+            -- TODO: change text object for list to not interfere with line
         end
     }
 
