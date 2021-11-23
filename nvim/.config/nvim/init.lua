@@ -14,9 +14,8 @@ vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line
 --[[
 
 TODO:
- - Change from coq to cmp
+ - Configure snippets
  - Use null-ls for formatting, linting, code actions
- - Copilot (once text flickering issue is fixed: https://github.com/ms-jpq/coq_nvim/issues/379)
  - DAP (once it's ready)
 
 --]]
@@ -161,10 +160,12 @@ require('packer').startup(function()
             }, { mode = 'x' })
 
             -- Insert mode mappings
-            wk.register(
-                {['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'}},
-                {mode='i'}
+            wk.register({
+                    ['<C-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
+                    ['<C-l>'] = {'copilot#Accept("")', 'Accept copilot suggestion', expr = 1},
+                }, {mode='i'}
             )
+            -- NOTE: autocomplete mappings set up in the cmp section
 
             -- Quickfix menu mappings
             vim.cmd [[
@@ -208,17 +209,81 @@ require('packer').startup(function()
             vim.cmd('autocmd FileType python let b:neoformat_run_all_formatters = 1')
         end
     }
-
-    use { -- Autocompletion
-        'ms-jpq/coq_nvim',
-        branch = 'coq', -- NOTE: on first use, do :COQdeps
+    ---- Autocompletion
+    use {
+        'hrsh7th/nvim-cmp', -- Autocomplete engine
+        requires = {
+            -- Completion sources
+            'hrsh7th/cmp-nvim-lsp',
+            'hrsh7th/cmp-buffer',
+            'hrsh7th/cmp-path',
+            -- Snippets
+            'hrsh7th/cmp-vsnip',
+            'hrsh7th/vim-vsnip'
+        },
         config = function()
-            vim.g.coq_settings = {
-                auto_start = 'shut-up', -- Autostart without welcome message
-                ['keymap.jump_to_mark'] = '',
-                ['clients.snippets.warn'] = {}, -- Disable warning about not loading default snippets
-                ['display.pum.fast_close'] = false, -- Prevent flickering by keeping old suggestions open
+            vim.o.completeopt = 'menu,menuone,noselect'
+            local cmp = require('cmp')
+
+            -- Used for tab complete (https://github.com/hrsh7th/nvim-cmp/wiki/Example-mappings)
+            local feedkey = function(key, mode)
+                vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), mode, true)
+            end
+
+            -- Setup completion
+            cmp.setup {
+                snippet = {
+                    expand = function(args)
+                        vim.fn["vsnip#anonymous"](args.body)
+                    end
+                },
+                sources = cmp.config.sources {
+                    { name = 'vsnip' },
+                    { name = 'path' },
+                    { name = 'nvim_lsp' },
+                    { name = 'buffer' },
+                },
+                mapping = {
+                    ['<C-u>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
+                    ['<C-d>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
+                    ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
+                    ['<C-y>'] = cmp.config.disable,
+                    ['<C-e>'] = cmp.mapping({
+                        i = cmp.mapping.abort(),
+                        c = cmp.mapping.close(),
+                    }),
+                    ['<CR>'] = cmp.mapping.confirm({ select = true }),
+                    -- Tab completion (modified from: https://github.com/hrsh7th/nvim-cmp/wiki/Example-mappings)
+                    ["<Tab>"] = cmp.mapping(function(fallback)
+                        if cmp.visible() then
+                            cmp.select_next_item()
+                        elseif vim.fn["vsnip#available"](1) == 1 then
+                            feedkey("<Plug>(vsnip-expand-or-jump)", "")
+                        else
+                            fallback() -- Send the key that was mapped prior
+                        end
+                    end, { "i", "s" }),
+                    ["<S-Tab>"] = cmp.mapping(function(fallback)
+                        if cmp.visible() then
+                            cmp.select_prev_item()
+                        elseif vim.fn["vsnip#jumpable"](-1) == 1 then
+                            feedkey("<Plug>(vsnip-jump-prev)", "")
+                        else
+                            fallback()
+                        end
+                    end, { "i", "s" }),
+                },
             }
+        end
+    }
+
+    use { -- Copilot autocomplete
+        'github/copilot.vim',
+        setup = function()
+            -- We map the copilot key manually
+            vim.g.copilot_no_tab_map = true
+            vim.g.copilot_assume_mapped = true
+            vim.g.copilot_tab_fallback = ""
         end
     }
 
@@ -320,10 +385,6 @@ require('packer').startup(function()
                     ext = '.md'
                 }
             }
-            vim.g.vimwiki_key_mappings = {
-                table_mappings = 0, -- Table mappings interfere with autocomplete
-                html = 0,
-            }
             vim.g.vimwiki_listsyms = ' .oOx' -- Compatibility with Obsidian checkboxes
             vim.g.vimwiki_auto_chdir = 1 -- Automatically chdir into wiki dir when entering a wiki file
         end
@@ -386,7 +447,12 @@ end
 -- For each language server installed with nvim-lsp-installer, configure
 -- it through this callback and launch the server when appropriate.
 require('nvim-lsp-installer').on_server_ready(function(server)
-    local options = { on_attach = on_lsp_attach }
+    local options = {
+        on_attach = on_lsp_attach,
+        require('cmp_nvim_lsp').update_capabilities( -- cmp setup: tell the LSP we can do completion
+            vim.lsp.protocol.make_client_capabilities()
+        )
+    }
 
     -- Lua-specific configuration
     if server.name == 'sumneko_lua' then
@@ -399,9 +465,6 @@ require('nvim-lsp-installer').on_server_ready(function(server)
             }
         }
     end
-
-    -- Enable LSP snippets for coq_nvim
-    options = require('coq').lsp_ensure_capabilities(options)
 
     server:setup(options)
 end)
