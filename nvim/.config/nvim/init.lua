@@ -63,11 +63,10 @@ require('packer').startup(function()
             }
 
             -- Motions: used in normal, visual, and operator-pending modes
-            -- TODO: stop [c and ]c from interfering with Fugitive
             local motions = {
                 ['['] = {
                     name = 'previous',
-                    c = {'<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>', 'Previous change'},
+                    c = {"&diff ? '[c' : '<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>'", 'Previous change', expr = true},
                     e = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
                     l = {'<Plug>(qf_loc_previous)', 'Previous loclist'},
                     L = {':lfirst<CR>', 'First loclist'},
@@ -76,7 +75,7 @@ require('packer').startup(function()
                 },
                 [']'] = {
                     name = 'next',
-                    c = {'<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>', 'Next change'},
+                    c = {"&diff ? ']c' : '<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>'", 'Next change', expr = true},
                     e = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
                     l = {'<Plug>(qf_loc_next)', 'Next loclist'},
                     L = {':llast<CR>', 'Last loclist'},
