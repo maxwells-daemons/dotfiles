@@ -43,17 +43,14 @@ require('packer').startup(function()
             objects['iC'] = 'inner Class'
             objects['ai'] = 'a conditional'
             objects['ii'] = 'inner conditional'
-            objects['aL'] = 'a Loop'
-            objects['iL'] = 'inner Loop'
+            objects['al'] = 'a loop'
+            objects['il'] = 'inner loop'
             -- treesitter-textsubjects
             objects['<cr>'] = 'syntax node'
             objects['a<cr>'] = 'containing node'
             -- textobj-entire
             objects['ie'] = 'entire buffer'
             objects['ae'] = 'entire buffer'
-            -- textobj-line
-            objects['il'] = 'inside line (excluding whitespace)'
-            objects['al'] = 'around line (including whitespace)'
             -- textobj-pastedtext
             objects['ay'] = 'pasted text'
 
@@ -91,6 +88,8 @@ require('packer').startup(function()
             local text_objects = {
                 ag = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
                 ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
+                ao = {'<Plug>(textobj-line-a)', 'inside line (excluding whitespace)'},
+                io = {'<Plug>(textobj-line-i)', 'around line (including whitespace)'},
             }
             wk.register(text_objects, { mode = 'x' })
             wk.register(text_objects, { mode = 'o' })
@@ -203,7 +202,10 @@ require('packer').startup(function()
 
     use {
         'kana/vim-textobj-line', -- Text object for the current line
-        requires = { 'kana/vim-textobj-user' }
+        requires = { 'kana/vim-textobj-user' },
+        setup = function ()
+            vim.g.textobj_line_no_default_key_mappings = true
+        end
     }
 
     use {
@@ -356,8 +358,8 @@ require('packer').startup(function()
                             ["iC"] = "@class.inner",
                             ["ai"] = "@conditional.outer",
                             ["ii"] = "@conditional.inner",
-                            ["aL"] = "@loop.outer",
-                            ["iL"] = "@loop.inner",
+                            ["al"] = "@loop.outer",
+                            ["il"] = "@loop.inner",
                         }
                     }
                 },
@@ -413,8 +415,6 @@ require('packer').startup(function()
             }
             vim.g.vimwiki_listsyms = ' .oOx' -- Compatibility with Obsidian checkboxes
             vim.g.vimwiki_auto_chdir = 1 -- Automatically chdir into wiki dir when entering a wiki file
-
-            -- TODO: change text object for list to not interfere with line
         end
     }
 
