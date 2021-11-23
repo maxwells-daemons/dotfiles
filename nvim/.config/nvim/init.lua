@@ -284,6 +284,9 @@ require('packer').startup(function()
             vim.g.copilot_no_tab_map = true
             vim.g.copilot_assume_mapped = true
             vim.g.copilot_tab_fallback = ""
+            vim.g.copilot_filetypes = {
+                vimwiki = false,
+            }
         end
     }
 
@@ -449,7 +452,7 @@ end
 require('nvim-lsp-installer').on_server_ready(function(server)
     local options = {
         on_attach = on_lsp_attach,
-        require('cmp_nvim_lsp').update_capabilities( -- cmp setup: tell the LSP we can do completion
+        capabilities = require('cmp_nvim_lsp').update_capabilities( -- cmp setup: tell the LSP we can do completion
             vim.lsp.protocol.make_client_capabilities()
         )
     }
