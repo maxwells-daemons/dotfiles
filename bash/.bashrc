@@ -1,29 +1,31 @@
 # ~/.bashrc: contains all interactive and non-interactive shell configuration
 
-# If not running interactively, don't do anything
-[[ $- == *i* ]] || return
+###########################
+# Non-interactive section #
+###########################
 
-# Enable extended completion
-if [ -f /usr/share/bash-completion/bash_completion ]; then
-	. /usr/share/bash-completion/bash_completion
-elif [ -f /etc/bash_completion ]; then
-	. /etc/bash_completion
-fi
+# Setup XDG user directories, obeying defaults if set
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-"$HOME/.config"}
+export XDG_CACHE_HOME=${XDG_CACHE_HOME:-"$HOME/.cache"}
+export XDG_DATA_HOME=${XDG_DATA_HOME:-"$HOME/.local/share"}
+export XDG_STATE_HOME=${XDG_STATE_HOME:-"$HOME/.local/state"}
+export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-"/run/user/$UID"}
 
-### Default programs
+# Default programs
 export EDITOR=vim
 export BROWSER=google-chrome
 export PAGER=less
 
-
 ### Configure programs
-# Most of this just aims to move dotfiles from ~ to ~/.config
-
 # readline
 export INPUTRC=$XDG_CONFIG_HOME/inputrc
 
-# tmux -- use ~/.config/tmux/tmux.conf even for old tmux versions
-alias tmux="tmux -f $XDG_CONFIG_HOME/tmux/tmux.conf"
+#######################
+# Interactive section #
+#######################
+
+# If not running interactively, don't do anything
+[[ $- == *i* ]] || return
 
 ### Aliases
 # Use neovim for vim if present
@@ -44,15 +46,21 @@ alias \
     diff="diff --color=auto" \
     ip="ip --color=auto"
 
+# tmux -- use ~/.config/tmux/tmux.conf even for old tmux versions
+alias tmux="tmux -f $XDG_CONFIG_HOME/tmux/tmux.conf"
+
 # Kitty: automatically copy terminfo to servers on SSH
 if [ $TERM = "xterm-kitty" ]; then
     alias ssh="kitty +kitten ssh"
 fi
 
-
-### Prompt
-PS1='[\u@\h \W]\$ '
-
+### Completion
+# Enable extended completion
+if [ -f /usr/share/bash-completion/bash_completion ]; then
+	. /usr/share/bash-completion/bash_completion
+elif [ -f /etc/bash_completion ]; then
+	. /etc/bash_completion
+fi
 
 ### History
 # See: https://blog.sanctum.geek.nz/better-bash-history/
@@ -81,3 +89,6 @@ HISTTIMEFORMAT="%F %T "
 ### General settings
 # Update LINES and COLUMNS on resize
 shopt -s checkwinsize
+
+# Set prompt
+PS1='[\u@\h \W]\$ '
