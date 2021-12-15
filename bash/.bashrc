@@ -22,6 +22,8 @@ export PAGER=less
 # readline
 export INPUTRC=$XDG_CONFIG_HOME/inputrc
 
+# tmux -- use ~/.config/tmux/tmux.conf even for old tmux versions
+alias tmux="tmux -f $XDG_CONFIG_HOME/tmux/tmux.conf"
 
 ### Aliases
 # Use neovim for vim if present
