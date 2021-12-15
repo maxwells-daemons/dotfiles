@@ -335,7 +335,7 @@ require('packer').startup(function()
             require('nvim-treesitter.configs').setup {
                 -- Make sure these parsers are installed, and install them if missing
                 ensure_installed = {
-                    'comment', 'bash', 'c', 'dockerfile', 'json', 'python', 'lua', 'vim', 'yaml'
+                    'comment', 'bash', 'c', 'dockerfile', 'json', 'python', 'lua', 'vim', 'yaml', 'rust'
                 },
                 -- Highlighting with TS
                 highlight = {

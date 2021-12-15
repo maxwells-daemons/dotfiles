@@ -20,6 +20,11 @@ export PAGER=less
 # readline
 export INPUTRC=$XDG_CONFIG_HOME/inputrc
 
+# rust
+export CARGO_HOME=$XDG_DATA_HOME/cargo
+export RUSTUP_HOME=$XDG_DATA_HOME/rustup
+test -f "$CARGO_HOME/env" && source "$CARGO_HOME/env"
+
 #######################
 # Interactive section #
 #######################
