@@ -2,7 +2,6 @@
 	name = Aidan Swope
 	email = aidanswope@gmail.com
 [core]
-	editor = vim
 	excludesfile = ~/.config/git/gitignore-global
 [pull]
 	rebase = true

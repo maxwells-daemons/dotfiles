@@ -1,0 +1,56 @@
+# ~/.config/shell_common: settings common across multiple shells, in both
+#                         interactive and non-interactive contexts
+
+### Setup XDG user directories, obeying defaults if set
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-"$HOME/.config"}
+export XDG_CACHE_HOME=${XDG_CACHE_HOME:-"$HOME/.cache"}
+export XDG_DATA_HOME=${XDG_DATA_HOME:-"$HOME/.local/share"}
+export XDG_STATE_HOME=${XDG_STATE_HOME:-"$HOME/.local/state"}
+export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-"/run/user/$UID"}
+
+### Default programs
+export VISUAL=vim
+export EDITOR=vim
+export BROWSER=google-chrome
+export PAGER=less
+
+### Aliases
+# Use v for nvim or vim
+if [ -x "$(command -v nvim)" ]
+then
+    alias v="nvim"
+    export VISUAL=nvim
+    export EDITOR=nvim
+else
+    alias v="vim"
+fi
+
+# Be verbose & cautious for cp, mv, and rm
+alias \
+    cp="cp -iv" \
+    mv="mv -iv" \
+    rm="rm -Iv"
+
+# Colorize some commands
+alias \
+    ls="ls -h --color=auto" \
+    grep="grep --color=auto" \
+    diff="diff --color=auto" \
+    ip="ip --color=auto"
+
+# tmux -- use ~/.config/tmux/tmux.conf even for old tmux versions
+alias tmux="tmux -f $XDG_CONFIG_HOME/tmux/tmux.conf"
+
+# Kitty: automatically copy terminfo to servers on SSH
+if [ $TERM = "xterm-kitty" ]; then
+    alias ssh="kitty +kitten ssh"
+fi
+
+### Configure programs
+# readline
+export INPUTRC=$XDG_CONFIG_HOME/inputrc
+
+# rust
+export CARGO_HOME=$XDG_DATA_HOME/cargo
+export RUSTUP_HOME=$XDG_DATA_HOME/rustup
+test -f "$CARGO_HOME/env" && source "$CARGO_HOME/env"
