@@ -1,2 +1,5 @@
 packer_compiled.lua
 viminfo
+
+.zsh_history
+.zsh_sessions/

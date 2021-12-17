@@ -29,7 +29,7 @@ fi
 alias \
     cp="cp -iv" \
     mv="mv -iv" \
-    rm="rm -Iv"
+    rm="rm -v"
 
 # Colorize some commands
 alias \
