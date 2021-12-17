@@ -9,8 +9,9 @@ set nocompatible
 " Use <Space> as the leader
 let mapleader = "\<Space>"
 
-" <C-/> clears the search highlight
+" <C-/> (Option-/ on MacOS) clears the search highlight
 nnoremap <silent> <C-_> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
+nnoremap <silent> ÷ :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
 
 " Move between splits with <Ctrl>-HJKL
 nmap <C-h> <C-W>h
@@ -18,9 +19,11 @@ nmap <C-j> <C-W>j
 nmap <C-k> <C-W>k
 nmap <C-l> <C-W>l
 
-" Cycle buffers with <Alt>-HL
+" Cycle buffers with <Alt>-HL (<Option>-HL on MacOS)
 nmap <A-h> :bnext<CR>
 nmap <A-l> :bprevious<CR>
+nmap ¬ :bnext<CR>
+nmap ˙ :bprevious<CR>
 
 " Make Y work like C and D
 nmap Y y$
@@ -133,6 +136,9 @@ endif
 if !has('nvim') && !empty(&viminfo)
     set viminfo^=!
 endif
+
+" Store viminfo in ~/.vim/viminfo
+set viminfofile=~/.vim/viminfo
 
 " Ensure './tags;' is in the tag file list
 if has('path_extra')
