@@ -22,6 +22,7 @@ TODO:
 -- Plugins: managed by Packer (to bootstrap: must first install manually git)
 -- Each plugin's configuration is handled next to its installation.
 -- NOTE: remember to `source $MYVIMRC | PackerCompile` after making changes!
+-- NOTE: to bootstrap, [install Packer manually](https://github.com/wbthomason/packer.nvim#quickstart), then `PackerSync`
 require('packer').startup(function()
     ---- Packer: manages itself
     use 'wbthomason/packer.nvim'
@@ -289,6 +290,7 @@ require('packer').startup(function()
 
     use { -- Copilot autocomplete
         'github/copilot.vim',
+        -- NOTE: depends on Node.js>=12
         setup = function()
             -- We map the copilot key manually
             vim.g.copilot_no_tab_map = true
@@ -365,6 +367,9 @@ require('packer').startup(function()
     ---- Telescope
     use { -- Fuzzy finder
         'nvim-telescope/telescope.nvim',
+        -- NOTE: depends on
+        -- - [ripgrep](https://github.com/BurntSushi/ripgrep)
+        -- - [fd](https://github.com/sharkdp/fd)
         requires = { 'nvim-lua/plenary.nvim' },
         after = {'which-key.nvim', 'telescope-fzf-native.nvim'},
         config = function()
@@ -392,6 +397,10 @@ require('packer').startup(function()
 
     use {
         'jose-elias-alvarez/null-ls.nvim', -- Register local capabilities with LSP interface
+        -- NOTE: depends on
+        -- - [isort](https://github.com/PyCQA/isort)
+        -- - [black](https://github.com/psf/black)
+        -- - [prettier](https://github.com/prettier/prettier)
         requires = { 'nvim-lua/plenary.nvim' },
         config = function()
             local null_ls = require('null-ls')
@@ -427,7 +436,7 @@ require('packer').startup(function()
             -- TODO: Pandoc integration
             vim.g.vimwiki_list = {
                 {
-                    path = '~/media/documents/obsidian',
+                    path = '~/media/documents/obsidian', -- NOTE: must update per host
                     syntax = 'markdown',
                     ext = '.md'
                 }
