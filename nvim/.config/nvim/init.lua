@@ -117,7 +117,7 @@ require('packer').startup(function()
                     r = {'<cmd>lua vim.lsp.buf.references()<CR>', 'Get references in quickfix'},
                 },
                 -- Actions
-                Q = {':Neoformat<CR>', 'Format file'}, -- TODO: make this an operator
+                Q = {'<cmd>lua vim.lsp.buf.formatting()<CR>', 'Format file'},
                 ['<Leader>'] = {
                     r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
                     a = {'<cmd>lua vim.lsp.buf.code_action()<CR>', 'Code action'},
@@ -157,7 +157,7 @@ require('packer').startup(function()
 
             -- Visual mappings
             wk.register({
-                Q = {':Neoformat! &ft<CR>', 'Format'},
+                Q = {'<cmd>lua vim.lsp.buf.range_formatting()<CR>', 'Format'},
                 ['<C-c>'] = {'<Plug>Commentary', 'Comment'},
                 ['<Leader>a'] = {'<cmd>lua vim.lsp.buf.range_code_action()<CR>', 'Code action'},
                 ['<Leader>gs'] = {'<cmd>lua require"gitsigns".stage_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>', 'Stage lines'},
@@ -216,24 +216,6 @@ require('packer').startup(function()
         end
     }
 
-    use { -- Trim trailing whitespace
-        'ntpeters/vim-better-whitespace',
-        setup = function()
-            vim.g.better_whitespace_enabled = 0 -- Don't highlight trailing whitespace
-            vim.g.strip_whitespace_on_save = 1
-            vim.g.strip_whitespace_confirm = 0
-            vim.g.strip_only_modified_lines = 1 -- Can use :StripWhitespace to get the rest
-        end
-    }
-
-    use { -- Autoformatting
-        'sbdchd/neoformat',
-        config = function()
-            -- Run both isort and black on Python files
-            vim.g.neoformat_enabled_python = { 'isort', 'black' }
-            vim.cmd('autocmd FileType python let b:neoformat_run_all_formatters = 1')
-        end
-    }
     ---- Autocompletion
     use {
         'hrsh7th/nvim-cmp', -- Autocomplete engine
@@ -395,6 +377,31 @@ require('packer').startup(function()
     use 'ray-x/lsp_signature.nvim' -- Display function signature helper
     use 'RRethy/vim-illuminate' -- Highlight matches for symbol under cursor
     use 'williamboman/nvim-lsp-installer' -- Installs LSPs locally
+
+    use {
+        'jose-elias-alvarez/null-ls.nvim', -- Register local capabilities with LSP interface
+        requires = { 'nvim-lua/plenary.nvim' },
+        config = function()
+            local null_ls = require('null-ls')
+            null_ls.setup({ -- NOTE: not using common LSP on_attach
+                sources = {
+                    -- Formatting
+                    null_ls.builtins.formatting.trim_newlines, -- Remove trailing newlines
+                    null_ls.builtins.formatting.trim_whitespace, -- Remove trailing whitespace
+                    null_ls.builtins.formatting.isort, -- Sort python imports
+                    null_ls.builtins.formatting.black, -- Format python code
+                    null_ls.builtins.formatting.prettier.with({ -- Multi-language formatter
+                        filetypes = {
+                            'html', 'css', 'scss', 'less', 'javascript',
+                            'json', 'yaml', 'markdown', 'vimwiki'
+                        },
+                    }),
+                    -- Code actions
+                    null_ls.builtins.code_actions.gitsigns, -- Integration with gitsigns
+                }
+            })
+        end
+    }
     -- LSP config finished after plugins block
 
     ---- Notes
@@ -496,7 +503,3 @@ require('nvim-lsp-installer').on_server_ready(function(server)
 
     server:setup(options)
 end)
-
--- NOTE:
--- if using python with pyright and pyenv, activate the pyenv virtualenv
--- first, then use `pyenv pyright` to generate the pyright config
