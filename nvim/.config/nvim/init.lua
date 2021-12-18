@@ -63,7 +63,7 @@ require('packer').startup(function()
             local motions = {
                 ['['] = {
                     name = 'previous',
-                    c = {"&diff ? '[c' : '<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>'", 'Previous change', expr = true},
+                    c = {"&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", 'Previous change', expr = true},
                     e = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
                     l = {'<Plug>(qf_loc_previous)', 'Previous loclist'},
                     L = {':lfirst<CR>', 'First loclist'},
@@ -72,7 +72,7 @@ require('packer').startup(function()
                 },
                 [']'] = {
                     name = 'next',
-                    c = {"&diff ? ']c' : '<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>'", 'Next change', expr = true},
+                    c = {"&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", 'Next change', expr = true},
                     e = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
                     l = {'<Plug>(qf_loc_next)', 'Next loclist'},
                     L = {':llast<CR>', 'Last loclist'},
@@ -86,8 +86,8 @@ require('packer').startup(function()
 
             -- Text objects: used in visual and operator-pending modes
             local text_objects = {
-                ag = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
-                ig = {':<C-U>lua require"gitsigns.actions".select_hunk()<CR>', 'Git hunk'},
+                ag = {':<C-U>Gitsigns select_hunk<CR>', 'Git hunk'},
+                ig = {':<C-U>Gitsigns select_hunk<CR>', 'Git hunk'},
                 ao = {'<Plug>(textobj-line-a)', 'inside line (excluding whitespace)'},
                 io = {'<Plug>(textobj-line-i)', 'around line (including whitespace)'},
             }
@@ -124,13 +124,14 @@ require('packer').startup(function()
                     g = {
                         name = 'git',
                         g = {':Git<CR>', 'Menu'},
-                        s = {'<cmd>lua require"gitsigns".stage_hunk()<CR>', 'Stage hunk'},
-                        S = {'<cmd>lua require"gitsigns".stage_buffer()<CR>', 'Stage everything'},
-                        u = {'<cmd>lua require"gitsigns".undo_stage_hunk()<CR>', 'Undo staging'},
-                        U = {'<cmd>lua require"gitsigns".reset_buffer_index()<CR>', 'Undo all staging'},
-                        r = {'<cmd>lua require"gitsigns".reset_hunk()<CR>', 'Reset hunk'},
-                        R = {'<cmd>lua require"gitsigns".reset_buffer()<CR>', 'Reset everything'},
-                        p = {'<cmd>lua require"gitsigns".preview_hunk()<CR>', 'Preview hunk'},
+                        s = {'<cmd>Gitsigns stage_hunk<CR>', 'Stage hunk'},
+                        S = {'<cmd>Gitsigns stage_buffer<CR>', 'Stage everything'},
+                        u = {'<cmd>Gitsigns undo_stage_hunk<CR>', 'Undo staging'},
+                        U = {'<cmd>Gitsigns reset_buffer_index<CR>', 'Undo all staging'},
+                        r = {'<cmd>Gitsigns reset_hunk<CR>', 'Reset hunk'},
+                        R = {'<cmd>Gitsigns reset_buffer<CR>', 'Reset everything'},
+                        p = {'<cmd>Gitsigns preview_hunk<CR>', 'Preview hunk'},
+                        b = {'<cmd>Gitsigns blame_line<CR>', 'View line blame'},
                     },
                     f = {
                         name = 'find',
@@ -160,8 +161,8 @@ require('packer').startup(function()
                 Q = {'<cmd>lua vim.lsp.buf.range_formatting()<CR>', 'Format'},
                 ['<C-c>'] = {'<Plug>Commentary', 'Comment'},
                 ['<Leader>a'] = {'<cmd>lua vim.lsp.buf.range_code_action()<CR>', 'Code action'},
-                ['<Leader>gs'] = {'<cmd>lua require"gitsigns".stage_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>', 'Stage lines'},
-                ['<Leader>gr'] = {'<cmd>lua require"gitsigns".reset_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>', 'Reset lines'},
+                ['<Leader>gs'] = {':Gitsigns stage_hunk<CR>', 'Stage lines'},
+                ['<Leader>gr'] = {':Gitsigns reset_hunk<CR>', 'Reset lines'},
             }, { mode = 'x' })
 
             -- Insert mode mappings
