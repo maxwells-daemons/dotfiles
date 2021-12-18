@@ -3,3 +3,5 @@ viminfo
 
 .zsh_history
 .zsh_sessions/
+.iterm2/
+.iterm2_shell_integration.zsh
