@@ -14,8 +14,9 @@ vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line
 --[[
 
 TODO:
- - DAP (once it's ready)
- - Plugin with motions and text objects for parent/child/sibling nodes
+ - https://github.com/qpkorr/vim-bufkill
+ - Tmux integration
+ - Setup snippets
 
 --]]
 
@@ -393,7 +394,6 @@ require('packer').startup(function()
     use 'neovim/nvim-lspconfig' -- Builtin configs for common language servers
     use 'ray-x/lsp_signature.nvim' -- Display function signature helper
     use 'RRethy/vim-illuminate' -- Highlight matches for symbol under cursor
-    use 'williamboman/nvim-lsp-installer' -- Installs LSPs locally
 
     use {
         'jose-elias-alvarez/null-ls.nvim', -- Register local capabilities with LSP interface
@@ -489,6 +489,8 @@ require('packer').startup(function()
 end)
 
 ---- LSP setup
+local lspconfig = require('lspconfig')
+
 -- When we connect to a language server, setup illuminate and lsp_signature
 local on_lsp_attach = function(client, bufnr)
     require('illuminate').on_attach(client)
@@ -500,27 +502,21 @@ local on_lsp_attach = function(client, bufnr)
     })
 end
 
--- For each language server installed with nvim-lsp-installer, configure
--- it through this callback and launch the server when appropriate.
-require('nvim-lsp-installer').on_server_ready(function(server)
+local setup_lsp = function(server, settings)
     local options = {
         on_attach = on_lsp_attach,
-        capabilities = require('cmp_nvim_lsp').update_capabilities( -- cmp setup: tell the LSP we can do completion
+        -- cmp setup: tell the LSP we can do completion
+        capabilities = require('cmp_nvim_lsp').update_capabilities(
             vim.lsp.protocol.make_client_capabilities()
-        )
+        ),
+        settings = settings
     }
-
-    -- Lua-specific configuration
-    if server.name == 'sumneko_lua' then
-        options.settings = {
-            Lua = {
-                diagnostics = {
-                    -- Don't warn us about these missing globals in vim config
-                    globals = { 'vim', 'use' }
-                }
-            }
-        }
-    end
-
     server:setup(options)
-end)
+end
+
+-- Set up language-specific LSP servers
+-- NOTE: depends on 
+-- - [pyright](https://github.com/microsoft/pyright)
+-- - [lua-language-server](https://github.com/sumneko/lua-language-server)
+setup_lsp(lspconfig.pyright, {})
+setup_lsp(lspconfig.sumneko_lua, { Lua = { diagnostics = { globals = { 'vim', 'use' } } } })
