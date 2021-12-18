@@ -1,7 +1,7 @@
 # ~/.bashrc: common and interactive config for bash shell
 
 # First, load common shell config
-source "$HOME/.config/shell_common"
+source "$HOME/.config/commonrc"
 
 # If not running interactively, don't do anything.
 # Config specific to interactive bash shells follows.
