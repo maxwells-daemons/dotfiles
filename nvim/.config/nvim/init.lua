@@ -492,7 +492,7 @@ end)
 local lspconfig = require('lspconfig')
 
 -- When we connect to a language server, setup illuminate and lsp_signature
-local on_lsp_attach = function(client, bufnr)
+local on_lsp_attach = function(client, _)
     require('illuminate').on_attach(client)
     require('lsp_signature').on_attach({
         bind = true,
@@ -514,9 +514,29 @@ local setup_lsp = function(server, settings)
     server:setup(options)
 end
 
--- Set up language-specific LSP servers
--- NOTE: depends on 
--- - [pyright](https://github.com/microsoft/pyright)
--- - [lua-language-server](https://github.com/sumneko/lua-language-server)
+-- Python LSP: pyright
+-- NOTE: depends on [pyright](https://github.com/microsoft/pyright)
 setup_lsp(lspconfig.pyright, {})
-setup_lsp(lspconfig.sumneko_lua, { Lua = { diagnostics = { globals = { 'vim', 'use' } } } })
+
+-- Lua LSP: lua-language-server
+-- NOTE: depends on [lua-language-server](https://github.com/sumneko/lua-language-server)
+-- Config from: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#sumneko_lua
+
+-- Assume we're using lua for nvim; setup lua runtime path with nvim files
+local runtime_path = vim.split(package.path, ';')
+table.insert(runtime_path, "lua/?.lua")
+table.insert(runtime_path, "lua/?/init.lua")
+
+require'lspconfig'.sumneko_lua.setup {
+    settings = {
+        Lua = {
+            -- Setup lua path, we're using LuaJIT for nvim code
+            runtime = { version = 'LuaJIT', path = runtime_path, },
+            -- Don't warn about undefined "vim" or "use" symbols
+            diagnostics = { globals = {'vim', 'use' }, },
+            -- Make the server aware of Neovim runtime files
+            workspace = { library = vim.api.nvim_get_runtime_file("", true), },
+            telemetry = { enable = false, },
+        },
+    },
+}
