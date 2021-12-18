@@ -132,6 +132,10 @@ if v:version > 703 || v:version == 703 && has("patch541")
     set formatoptions+=j 
 endif
 
+" Save files by overwriting; prevents duplicate notifications
+" See: https://superuser.com/questions/1543754/stop-entr-from-running-twice-when-file-is-saved-from-vim
+set backupcopy=yes
+
 " Save all-caps global variables between sessions; dependency for some plugins
 if !has('nvim') && !empty(&viminfo)
     set viminfo^=!
