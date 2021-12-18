@@ -52,7 +52,7 @@ require('packer').startup(function()
             objects['ie'] = 'entire buffer'
             objects['ae'] = 'entire buffer'
             -- textobj-pastedtext
-            objects['ay'] = 'pasted text'
+            objects['aP'] = 'pasted text'
 
             wk.setup {
                 motions = {count = false},  -- Disable WhichKey for actions like "c3..."
@@ -106,6 +106,7 @@ require('packer').startup(function()
                 ['<C-_>'] = 'Clear highlighting',
                 ['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
                 K = {'<cmd>lua vim.lsp.buf.hover()<CR>', 'Get symbol info'},
+                ['<C-c><C-c>'] = {'<Plug>CommentaryLine', 'Comment line'},
                 -- Operators
                 ['<C-c>'] = {'<Plug>Commentary', 'Comment'},
                 -- Jumps
@@ -168,7 +169,8 @@ require('packer').startup(function()
             -- Insert mode mappings
             wk.register({
                     ['<C-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
-                    ['<C-l>'] = {'copilot#Accept("")', 'Accept copilot suggestion', expr = 1},
+                    ['<C-v>'] = {'copilot#Accept("")', 'Accept copilot suggestion', expr = 1},
+                    ['<C-c>'] = {'copilot#Dismiss()', 'Dismiss copilot suggestion', expr = 1},
                 }, {mode='i'}
             )
             -- NOTE: autocomplete mappings set up in the cmp section
@@ -213,7 +215,7 @@ require('packer').startup(function()
         'saaguero/vim-textobj-pastedtext', -- Text object for the last paste
         requires = { 'kana/vim-textobj-user' },
         setup = function ()
-            vim.g.pastedtext_select_key = 'ay' -- Map to ay
+            vim.g.pastedtext_select_key = 'aP' -- Map to aP
         end
     }
 
