@@ -407,16 +407,23 @@ require('packer').startup(function()
             null_ls.setup({ -- NOTE: not using common LSP on_attach
                 sources = {
                     -- Formatting
-                    null_ls.builtins.formatting.trim_newlines, -- Remove trailing newlines
-                    null_ls.builtins.formatting.trim_whitespace, -- Remove trailing whitespace
                     null_ls.builtins.formatting.isort, -- Sort python imports
                     null_ls.builtins.formatting.black, -- Format python code
-                    null_ls.builtins.formatting.prettier.with({ -- Multi-language formatter
+                    null_ls.builtins.formatting.prettier.with { -- Multi-language formatter
                         filetypes = {
                             'html', 'css', 'scss', 'less', 'javascript',
                             'json', 'yaml', 'markdown', 'vimwiki'
                         },
-                    }),
+                    },
+                    -- Builtin formatters that strip trailing whitespace;
+                    -- disabled for languages whose LSP supports formatting
+                    null_ls.builtins.formatting.trim_newlines.with {
+                        disabled_filetypes = { "rust" }
+                    },
+                    null_ls.builtins.formatting.trim_whitespace.with {
+                        disabled_filetypes = { "rust" }
+                    },
+
                     -- Code actions
                     null_ls.builtins.code_actions.gitsigns, -- Integration with gitsigns
                 }
@@ -502,18 +509,20 @@ local on_lsp_attach = function(client, _)
     })
 end
 
-local setup_lsp = function(server, settings)
+local setup_lsp = function(server)
     local options = {
         on_attach = on_lsp_attach,
         -- cmp setup: tell the LSP we can do completion
         capabilities = require('cmp_nvim_lsp').update_capabilities(
             vim.lsp.protocol.make_client_capabilities()
         ),
-        settings = settings
     }
     server:setup(options)
 end
 
--- Python LSP: pyright
--- NOTE: depends on [pyright](https://github.com/microsoft/pyright)
-setup_lsp(lspconfig.pyright, {})
+-- Setup language-specific LSP servers
+-- NOTE: depends on:
+-- - [pyright](https://github.com/microsoft/pyright)
+-- - [rust-analyzer](https://rust-analyzer.github.io)
+setup_lsp(lspconfig.pyright)
+setup_lsp(lspconfig.rust_analyzer)
