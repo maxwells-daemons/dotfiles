@@ -136,13 +136,13 @@ endif
 " See: https://superuser.com/questions/1543754/stop-entr-from-running-twice-when-file-is-saved-from-vim
 set backupcopy=yes
 
-" Save all-caps global variables between sessions; dependency for some plugins
+" viminfo file
 if !has('nvim') && !empty(&viminfo)
+    " Move out of ~
+    set viminfofile=~/.vim/viminfo
+    " Save all-caps global variables between sessions; dependency for some plugins
     set viminfo^=!
 endif
-
-" Store viminfo in ~/.vim/viminfo
-set viminfofile=~/.vim/viminfo
 
 " Ensure './tags;' is in the tag file list
 if has('path_extra')

@@ -20,10 +20,10 @@ TODO:
 
 --]]
 
--- Plugins: managed by Packer (to bootstrap: must first install manually git)
+-- Plugins: managed by [Packer](https://github.com/wbthomason/packer.nvim)
 -- Each plugin's configuration is handled next to its installation.
 -- NOTE: remember to `source $MYVIMRC | PackerCompile` after making changes!
--- NOTE: to bootstrap, [install Packer manually](https://github.com/wbthomason/packer.nvim#quickstart), then `PackerSync`
+-- NOTE: to bootstrap, install Packer manually, then `PackerSync`
 require('packer').startup(function()
     ---- Packer: manages itself
     use 'wbthomason/packer.nvim'
@@ -414,6 +414,7 @@ require('packer').startup(function()
                             'html', 'css', 'scss', 'less', 'javascript',
                             'json', 'yaml', 'markdown', 'vimwiki'
                         },
+                        extra_args = { '--prose-wrap', 'always' }
                     },
                     -- Builtin formatters that strip trailing whitespace;
                     -- disabled for languages whose LSP supports formatting
@@ -443,7 +444,7 @@ require('packer').startup(function()
             -- TODO: Pandoc integration
             vim.g.vimwiki_list = {
                 {
-                    path = '~/media/documents/obsidian', -- NOTE: must update per host
+                    path = '~/Sync/documents/obsidian', -- NOTE: must update per host
                     syntax = 'markdown',
                     ext = '.md'
                 }
