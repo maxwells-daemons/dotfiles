@@ -1,7 +1,10 @@
 packer_compiled.lua
 viminfo
 
+antigen.zsh
 .zsh_history
 .zsh_sessions/
+.zcompcache/
+
 .iterm2/
 .iterm2_shell_integration.zsh
