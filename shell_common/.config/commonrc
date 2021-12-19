@@ -1,5 +1,5 @@
-# ~/.config/shell_common: settings common across multiple shells, in both
-#                         interactive and non-interactive contexts
+# ~/.config/commonrc: settings common across multiple shells, in both
+#                     interactive and non-interactive contexts
 
 ### Setup XDG user directories, obeying defaults if set
 export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-"$HOME/.config"}
@@ -50,6 +50,10 @@ fi
 ### Configure programs
 # readline
 export INPUTRC=$XDG_CONFIG_HOME/inputrc
+
+# less
+export LESSKEY="${XDG_CONFIG_HOME}/less/lesskey"
+export LESSHISTFILE="${XDG_CACHE_HOME}/less/history"
 
 # rust
 export CARGO_HOME=$XDG_DATA_HOME/cargo
