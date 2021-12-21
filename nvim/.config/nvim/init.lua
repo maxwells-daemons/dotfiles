@@ -407,8 +407,12 @@ require('packer').startup(function()
             null_ls.setup({ -- NOTE: not using common LSP on_attach
                 sources = {
                     -- Formatting
-                    null_ls.builtins.formatting.isort, -- Sort python imports
-                    null_ls.builtins.formatting.black, -- Format python code
+                    null_ls.builtins.formatting.isort.with { -- Sort python imports
+                        args = {"--stdout", "--profile", "black", "-"}
+                    }, 
+                    null_ls.builtins.formatting.black.with { -- Format python code
+                        args = {"--quiet", "--fast", "-" }
+                    },
                     null_ls.builtins.formatting.prettier.with { -- Multi-language formatter
                         filetypes = {
                             'html', 'css', 'scss', 'less', 'javascript',
@@ -444,7 +448,7 @@ require('packer').startup(function()
             -- TODO: Pandoc integration
             vim.g.vimwiki_list = {
                 {
-                    path = '~/Sync/documents/obsidian', -- NOTE: must update per host
+                    path = '~/media/documents/obsidian', -- NOTE: must update per host
                     syntax = 'markdown',
                     ext = '.md'
                 }
