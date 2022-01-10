@@ -47,9 +47,6 @@ require('packer').startup(function()
             objects['ii'] = 'inner conditional'
             objects['al'] = 'a loop'
             objects['il'] = 'inner loop'
-            -- treesitter-textsubjects
-            objects['<cr>'] = 'syntax node'
-            objects['a<cr>'] = 'containing node'
 
             wk.setup {
                 motions = {count = false},  -- Disable WhichKey for actions like "c3..."
@@ -311,19 +308,10 @@ require('packer').startup(function()
                         }
                     }
                 },
-                -- "Smart" TS text objects
-                textsubjects = {
-                    enable = true,
-                    keymaps = {
-                        ["<cr>"] = 'textsubjects-smart', -- Local scope
-                        ["a<cr>"] = 'textsubjects-container-outer', -- Local container
-                    }
-                },
             }
         end
     }
     use 'nvim-treesitter/nvim-treesitter-textobjects' -- Syntax-aware text objects
-    use 'RRethy/nvim-treesitter-textsubjects' -- "Smart" treesitter text objects
 
     ---- Telescope
     use { -- Fuzzy finder
