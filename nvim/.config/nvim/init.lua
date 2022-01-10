@@ -229,9 +229,6 @@ require('packer').startup(function()
             'hrsh7th/cmp-nvim-lsp',
             'hrsh7th/cmp-buffer',
             'hrsh7th/cmp-path',
-            -- Snippets
-            'hrsh7th/cmp-vsnip',
-            'hrsh7th/vim-vsnip'
         },
         config = function()
             vim.o.completeopt = 'menu,menuone,noselect'
@@ -244,13 +241,7 @@ require('packer').startup(function()
 
             -- Setup completion
             cmp.setup {
-                snippet = {
-                    expand = function(args)
-                        vim.fn["vsnip#anonymous"](args.body)
-                    end
-                },
                 sources = cmp.config.sources {
-                    { name = 'vsnip' },
                     { name = 'path' },
                     { name = 'nvim_lsp' },
                     { name = 'buffer' },
@@ -269,8 +260,6 @@ require('packer').startup(function()
                     ["<Tab>"] = cmp.mapping(function(fallback)
                         if cmp.visible() then
                             cmp.select_next_item()
-                        elseif vim.fn["vsnip#available"](1) == 1 then
-                            feedkey("<Plug>(vsnip-expand-or-jump)", "")
                         else
                             fallback() -- Send the key that was mapped prior
                         end
@@ -278,8 +267,6 @@ require('packer').startup(function()
                     ["<S-Tab>"] = cmp.mapping(function(fallback)
                         if cmp.visible() then
                             cmp.select_prev_item()
-                        elseif vim.fn["vsnip#jumpable"](-1) == 1 then
-                            feedkey("<Plug>(vsnip-jump-prev)", "")
                         else
                             fallback()
                         end
