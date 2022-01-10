@@ -19,12 +19,6 @@ nmap <C-j> <C-W>j
 nmap <C-k> <C-W>k
 nmap <C-l> <C-W>l
 
-" Cycle buffers with <Alt>-HL (<Option>-HL on MacOS)
-nmap <A-h> :bnext<CR>
-nmap <A-l> :bprevious<CR>
-nmap ¬ :bnext<CR>
-nmap ˙ :bprevious<CR>
-
 " Make Y work like C and D
 nmap Y y$
 
@@ -98,11 +92,6 @@ set title " Set the window title to the current filename
 " Do incremental searching when it's possible to timeout.
 if has('reltime')
   set incsearch
-endif
-
-" Default colorscheme for plain vim
-if !has('nvim')
-    colorscheme desert
 endif
 
 """ Misc
