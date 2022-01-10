@@ -299,6 +299,7 @@ require('packer').startup(function()
             vim.g.copilot_tab_fallback = ""
             vim.g.copilot_filetypes = {
                 vimwiki = false,
+                TelescopePrompt = false,
             }
         end
     }
