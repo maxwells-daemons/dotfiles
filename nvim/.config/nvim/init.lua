@@ -50,11 +50,6 @@ require('packer').startup(function()
             -- treesitter-textsubjects
             objects['<cr>'] = 'syntax node'
             objects['a<cr>'] = 'containing node'
-            -- textobj-entire
-            objects['ie'] = 'entire buffer'
-            objects['ae'] = 'entire buffer'
-            -- textobj-pastedtext
-            objects['aP'] = 'pasted text'
 
             wk.setup {
                 motions = {count = false},  -- Disable WhichKey for actions like "c3..."
@@ -90,8 +85,6 @@ require('packer').startup(function()
             local text_objects = {
                 ag = {':<C-U>Gitsigns select_hunk<CR>', 'Git hunk'},
                 ig = {':<C-U>Gitsigns select_hunk<CR>', 'Git hunk'},
-                ao = {'<Plug>(textobj-line-a)', 'inside line (excluding whitespace)'},
-                io = {'<Plug>(textobj-line-i)', 'around line (including whitespace)'},
             }
             wk.register(text_objects, { mode = 'x' })
             wk.register(text_objects, { mode = 'o' })
@@ -198,27 +191,6 @@ require('packer').startup(function()
     use { -- Text objects for surroundings
         'tpope/vim-surround',
         requires = { 'tpope/vim-repeat' }
-    }
-
-    use {
-        'kana/vim-textobj-entire', -- Text object for the entire buffer
-        requires = { 'kana/vim-textobj-user' }
-    }
-
-    use {
-        'kana/vim-textobj-line', -- Text object for the current line
-        requires = { 'kana/vim-textobj-user' },
-        setup = function ()
-            vim.g.textobj_line_no_default_key_mappings = true
-        end
-    }
-
-    use {
-        'saaguero/vim-textobj-pastedtext', -- Text object for the last paste
-        requires = { 'kana/vim-textobj-user' },
-        setup = function ()
-            vim.g.pastedtext_select_key = 'aP' -- Map to aP
-        end
     }
 
     ---- Autocompletion
