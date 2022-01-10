@@ -410,7 +410,7 @@ require('packer').startup(function()
                     -- Formatting
                     null_ls.builtins.formatting.isort.with { -- Sort python imports
                         args = {"--stdout", "--profile", "black", "-"}
-                    }, 
+                    },
                     null_ls.builtins.formatting.black.with { -- Format python code
                         args = {"--quiet", "--fast", "-" }
                     },
@@ -493,7 +493,9 @@ require('packer').startup(function()
     ---- Misc
     use 'romainl/vim-qf' -- Make quickfix behavior more convenient
 
-    use { -- Enable short CursorHold updatetime without writing swap too often
+    -- Enable short CursorHold updatetime without writing swap too often
+    -- TODO: remove when https://github.com/neovim/neovim/issues/12587 is fixed
+    use {
         'antoinemadec/FixCursorHold.nvim',
         setup = function()
             vim.g.cursorhold_updatetime = 100
