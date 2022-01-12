@@ -309,6 +309,14 @@ require('packer').startup(function()
                     }
                 },
             }
+
+            -- Treesitter folding
+            vim.o.foldmethod = 'expr'
+            vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
+            vim.o.foldlevel = 99 -- Open folds by default
+
+            -- Pretty fold text substitution
+            vim.o.foldtext = [[substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'g').'...'.trim(getline(v:foldend))]]
         end
     }
     use 'nvim-treesitter/nvim-treesitter-textobjects' -- Syntax-aware text objects
@@ -392,6 +400,8 @@ require('packer').startup(function()
             -- TODO: integrate with Obsidian tags by modifying
             -- s:markdown_syntax.tag_search and s:markdown_syntax.tag_match
             -- (see: .local/share/nvim/site/pack/packer/start/vimwiki/syntax/vimwiki_markdown.vim)
+
+            -- TODO: integrate with TreeSitter markdown syntax
 
             -- TODO: Pandoc integration
             vim.g.vimwiki_list = {
