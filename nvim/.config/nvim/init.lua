@@ -257,8 +257,20 @@ require('packer').startup(function()
             ls = require('luasnip')
             ls.snippets = {
                 all = {
-                    ls.snippet("date", { ls.function_node(function() return os.date("%y-%m-%d") end) }),
-                    ls.snippet("time", { ls.function_node(function() return os.date("%I:%M %p") end) }),
+                    ls.snippet("date", ls.function_node(function() return os.date("%y-%m-%d") end)),
+                    ls.snippet("time", ls.function_node(function() return os.date("%I:%M %p") end)),
+                },
+                python = {
+                    ls.snippet(
+                        "pdb",
+                        ls.text_node {
+                            "# TODO: remove",
+                            "# fmt: off",
+                            "import pdb; pdb.set_trace()",
+                            "# fmt: on",
+                            "", 
+                        }
+                    ),
                 }
             }
         end
