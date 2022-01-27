@@ -16,7 +16,6 @@ vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line
 TODO:
  - https://github.com/qpkorr/vim-bufkill
  - Tmux integration
- - Setup snippets
 
 --]]
 
@@ -198,15 +197,14 @@ require('packer').startup(function()
             'hrsh7th/cmp-nvim-lsp',
             'hrsh7th/cmp-buffer',
             'hrsh7th/cmp-path',
+            'saadparwaiz1/cmp_luasnip',
         },
+        after = 'LuaSnip',
         config = function()
             vim.o.completeopt = 'menu,menuone,noselect'
-            local cmp = require('cmp')
 
-            -- Used for tab complete (https://github.com/hrsh7th/nvim-cmp/wiki/Example-mappings)
-            local feedkey = function(key, mode)
-                vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), mode, true)
-            end
+            local cmp = require('cmp')
+            local luasnip = require('luasnip')
 
             -- Setup completion
             cmp.setup {
@@ -214,6 +212,10 @@ require('packer').startup(function()
                     { name = 'path' },
                     { name = 'nvim_lsp' },
                     { name = 'buffer' },
+                    { name = 'luasnip' },
+                },
+                snippet = {
+                    expand = function(args) return luasnip.lsp_expand(args.body) end,
                 },
                 mapping = {
                     ['<C-u>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
@@ -229,6 +231,8 @@ require('packer').startup(function()
                     ["<Tab>"] = cmp.mapping(function(fallback)
                         if cmp.visible() then
                             cmp.select_next_item()
+                        elseif luasnip.expand_or_jumpable() then
+                            luasnip.expand_or_jump()
                         else
                             fallback() -- Send the key that was mapped prior
                         end
@@ -236,11 +240,26 @@ require('packer').startup(function()
                     ["<S-Tab>"] = cmp.mapping(function(fallback)
                         if cmp.visible() then
                             cmp.select_prev_item()
+                        elseif luasnip.jumpable(-1) then
+                            luasnip.jump(-1)
                         else
                             fallback()
                         end
                     end, { "i", "s" }),
                 },
+            }
+        end
+    }
+
+    use { -- Snippets
+        'L3MON4D3/LuaSnip',
+        config = function()
+            ls = require('luasnip')
+            ls.snippets = {
+                all = {
+                    ls.snippet("date", { ls.function_node(function() return os.date("%y-%m-%d") end) }),
+                    ls.snippet("time", { ls.function_node(function() return os.date("%I:%M %p") end) }),
+                }
             }
         end
     }
