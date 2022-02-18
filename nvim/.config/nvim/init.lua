@@ -92,8 +92,6 @@ require('packer').startup(function()
                 ['<C-j>'] = 'Window down',
                 ['<C-k>'] = 'Window up',
                 ['<C-l>'] = 'Window right',
-                ['<A-h>'] = 'Buffer next',
-                ['<A-l>'] = 'Buffer previous',
                 ['<C-_>'] = 'Clear highlighting',
                 ['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
                 K = {'<cmd>lua vim.lsp.buf.hover()<CR>', 'Get symbol info'},
@@ -358,7 +356,10 @@ require('packer').startup(function()
         -- NOTE: depends on
         -- - [ripgrep](https://github.com/BurntSushi/ripgrep)
         -- - [fd](https://github.com/sharkdp/fd)
-        requires = { 'nvim-lua/plenary.nvim' },
+        requires = { 
+            'nvim-lua/plenary.nvim',
+            'nvim-telescope/telescope-symbols.nvim' -- To use: :Telescope sybmbols
+        },
         after = {'which-key.nvim', 'telescope-fzf-native.nvim'},
         config = function()
             local telescope = require('telescope')
