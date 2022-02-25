@@ -14,7 +14,6 @@ vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line
 --[[
 
 TODO:
- - Replace/remove vim-signature
  - Align plugin
  - Status line (https://github.com/nvim-lualine/lualine.nvim) and https://github.com/SmiteshP/nvim-gps
 
@@ -213,6 +212,8 @@ require('packer').startup(function()
             'hrsh7th/cmp-buffer',
             'hrsh7th/cmp-path',
             'saadparwaiz1/cmp_luasnip',
+            -- Display function signatures
+            'hrsh7th/cmp-nvim-lsp-signature-help',
         },
         after = 'LuaSnip',
         config = function()
@@ -226,6 +227,7 @@ require('packer').startup(function()
                 sources = cmp.config.sources {
                     { name = 'path' },
                     { name = 'nvim_lsp' },
+                    { name = "nvim_lsp_signature_help" },
                     { name = 'buffer' },
                     { name = 'luasnip' },
                 },
@@ -398,7 +400,6 @@ require('packer').startup(function()
 
     ---- Language server
     use 'neovim/nvim-lspconfig' -- Builtin configs for common language servers
-    use 'ray-x/lsp_signature.nvim' -- Display function signature helper
     use 'RRethy/vim-illuminate' -- Highlight matches for symbol under cursor
 
     use {
@@ -514,15 +515,9 @@ end)
 ---- LSP setup
 local lspconfig = require('lspconfig')
 
--- When we connect to a language server, setup illuminate and lsp_signature
+-- When we connect to a language server, setup illuminate
 local on_lsp_attach = function(client, _)
     require('illuminate').on_attach(client)
-    require('lsp_signature').on_attach({
-        bind = true,
-        hi_parameter = 'Search',
-        floating_window = false,  -- Trigger manually with <C-s>
-        hint_enable = false,
-    })
 end
 
 local setup_lsp = function(server)
