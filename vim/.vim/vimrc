@@ -9,9 +9,8 @@ set nocompatible
 " Use <Space> as the leader
 let mapleader = "\<Space>"
 
-" <C-/> (Option-/ on MacOS) clears the search highlight
-nnoremap <silent> <C-_> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
-nnoremap <silent> ÷ :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
+" <Leader>/ in normal mode clears the search highlight
+nnoremap <silent> <Leader>/ :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
 
 " Move between splits with <Ctrl>-HJKL
 nmap <C-h> <C-W>h

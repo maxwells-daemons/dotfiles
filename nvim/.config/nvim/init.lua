@@ -14,7 +14,11 @@ vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line
 --[[
 
 TODO:
- - https://github.com/qpkorr/vim-bufkill
+ - Replace/remove vim-signature
+ - Align plugin
+ - Status line (https://github.com/nvim-lualine/lualine.nvim) and https://github.com/SmiteshP/nvim-gps
+
+ - Write plugin: undo tree viewer with Telescope
  - Tmux integration
 
 --]]
@@ -57,7 +61,9 @@ require('packer').startup(function()
                 ['['] = {
                     name = 'previous',
                     c = {"&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", 'Previous change', expr = true},
-                    e = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous error'},
+                    d = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous diagnostic'},
+                    b = {':bprevious<CR>', 'Previous buffer'},
+                    B = {':bfirst', 'First buffer'},
                     l = {'<Plug>(qf_loc_previous)', 'Previous loclist'},
                     L = {':lfirst<CR>', 'First loclist'},
                     q = {'<Plug>(qf_qf_previous)', 'Previous quickfix'},
@@ -66,7 +72,9 @@ require('packer').startup(function()
                 [']'] = {
                     name = 'next',
                     c = {"&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", 'Next change', expr = true},
-                    e = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next error'},
+                    d = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next diagnostic'},
+                    b = {':bnext<CR>', 'Next buffer'},
+                    B = {':blast<CR>', 'Last buffer'},
                     l = {'<Plug>(qf_loc_next)', 'Next loclist'},
                     L = {':llast<CR>', 'Last loclist'},
                     q = {'<Plug>(qf_qf_next)', 'Next quickfix'},
@@ -92,12 +100,8 @@ require('packer').startup(function()
                 ['<C-j>'] = 'Window down',
                 ['<C-k>'] = 'Window up',
                 ['<C-l>'] = 'Window right',
-                ['<C-_>'] = 'Clear highlighting',
                 ['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
                 K = {'<cmd>lua vim.lsp.buf.hover()<CR>', 'Get symbol info'},
-                ['<C-c><C-c>'] = {'<Plug>CommentaryLine', 'Comment line'},
-                -- Operators
-                ['<C-c>'] = {'<Plug>Commentary', 'Comment'},
                 -- Jumps
                 g = {
                     d = {'<cmd>lua vim.lsp.buf.definition()<CR>', 'Go to definition'},
@@ -109,8 +113,22 @@ require('packer').startup(function()
                 -- Actions
                 Q = {'<cmd>lua vim.lsp.buf.formatting()<CR>', 'Format file'},
                 ['<Leader>'] = {
+                    -- UI
+                    ['/'] = 'Clear highlighting',
+                    q = {'<Plug>(qf_qf_toggle_stay)', 'Toggle quickfix'},
+                    l = {'<Plug>(qf_loc_toggle_stay)', 'Toggle loclist'},
+                    -- Commenting
+                    c = {'<Plug>Commentary', 'Comment'}, -- Operator
+                    cc = {'<Plug>CommentaryLine', 'Comment line'},
+                    -- LSP
                     r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
                     a = {"<cmd>lua require('telescope.builtin').lsp_code_actions()<CR>", 'Code action'},
+                    d = {
+                        name = 'diagnostics',
+                        q = {'<cmd>lua vim.diagnostic.setqflist()<CR>', 'Workspace diagnostics in quickfix'},
+                        l = {'<cmd>lua vim.diagnostic.setloclist()<CR>', 'Buffer diagnostics in loclist'},
+                    },
+                    -- Others
                     g = {
                         name = 'git',
                         g = {':Git<CR>', 'Menu'},
@@ -128,10 +146,11 @@ require('packer').startup(function()
                         f = {"<cmd>lua require('telescope.builtin').find_files()<cr>", 'Files'},
                         g = {"<cmd>lua require('telescope.builtin').live_grep()<cr>", 'Grep'},
                         b = {"<cmd>lua require('telescope.builtin').buffers()<cr>", 'Buffers'},
-                        ['/'] = {"<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>", 'Fuzzy search'},
                         r = {"<cmd>lua require('telescope.builtin').lsp_references()<cr>", 'References'},
                         s = {"<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>", 'Symbols in the buffer'},
                         S = {"<cmd>lua require('telescope.builtin').lsp_dynamic_workspace_symbols()<cr>", 'Symbols in the workspace'},
+                        d = {"<cmd>lua require('telescope.builtin').diagnostics {bufnr=0}<cr>", 'Buffer diagnostics'},
+                        D = {"<cmd>lua require('telescope.builtin').diagnostics()<cr>", 'Workspace diagnostics'},
                     },
                     w = { name = 'wiki' },
                 },
@@ -149,7 +168,7 @@ require('packer').startup(function()
             -- Visual mappings
             wk.register({
                 Q = {'<cmd>lua vim.lsp.buf.range_formatting()<CR>', 'Format'},
-                ['<C-c>'] = {'<Plug>Commentary', 'Comment'},
+                ['<Leader>c'] = {'<Plug>Commentary', 'Comment'},
                 ['<Leader>a'] = {"<cmd>lua require('telescope.builtin').lsp_range_code_actions()<CR>", 'Code action'},
                 ['<Leader>gs'] = {':Gitsigns stage_hunk<CR>', 'Stage lines'},
                 ['<Leader>gr'] = {':Gitsigns reset_hunk<CR>', 'Reset lines'},
@@ -167,8 +186,6 @@ require('packer').startup(function()
             -- Quickfix menu mappings
             vim.cmd [[
             function! QFMappings()
-                nmap <buffer> <A-h> <Plug>(qf_older)
-                nmap <buffer> <A-l> <Plug>(qf_newer)
                 nmap <buffer> {     <Plug>(qf_previous_file)
                 nmap <buffer> }     <Plug>(qf_next_file)
             endfunction
@@ -266,7 +283,7 @@ require('packer').startup(function()
                             "# fmt: off",
                             "import pdb; pdb.set_trace()",
                             "# fmt: on",
-                            "", 
+                            "",
                         }
                     ),
                 }
@@ -309,7 +326,8 @@ require('packer').startup(function()
             require('nvim-treesitter.configs').setup {
                 -- Make sure these parsers are installed, and install them if missing
                 ensure_installed = {
-                    'comment', 'bash', 'c', 'dockerfile', 'json', 'python', 'lua', 'vim', 'yaml', 'rust'
+                    'comment', 'bash', 'c', 'dockerfile', 'json',
+                    'python', 'lua', 'vim', 'yaml', 'rust'
                 },
                 -- Highlighting with TS
                 highlight = {
@@ -356,7 +374,7 @@ require('packer').startup(function()
         -- NOTE: depends on
         -- - [ripgrep](https://github.com/BurntSushi/ripgrep)
         -- - [fd](https://github.com/sharkdp/fd)
-        requires = { 
+        requires = {
             'nvim-lua/plenary.nvim',
             'nvim-telescope/telescope-symbols.nvim' -- To use: :Telescope sybmbols
         },
