@@ -225,11 +225,11 @@ require('packer').startup(function()
             -- Setup completion
             cmp.setup {
                 sources = cmp.config.sources {
+                    { name = 'luasnip' },
                     { name = 'path' },
                     { name = 'nvim_lsp' },
                     { name = "nvim_lsp_signature_help" },
                     { name = 'buffer' },
-                    { name = 'luasnip' },
                 },
                 snippet = {
                     expand = function(args) return luasnip.lsp_expand(args.body) end,
