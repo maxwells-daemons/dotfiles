@@ -14,9 +14,7 @@ vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line
 --[[
 
 TODO:
- - Align plugin
- - Status line (https://github.com/nvim-lualine/lualine.nvim) and https://github.com/SmiteshP/nvim-gps
-
+ - Setup DAP
  - Write plugin: undo tree viewer with Telescope
  - Tmux integration
 
@@ -116,18 +114,19 @@ require('packer').startup(function()
                     ['/'] = 'Clear highlighting',
                     q = {'<Plug>(qf_qf_toggle_stay)', 'Toggle quickfix'},
                     l = {'<Plug>(qf_loc_toggle_stay)', 'Toggle loclist'},
-                    -- Commenting
+                    -- Editing
+                    a = {'<Plug>(EasyAlign)', 'Align'},
                     c = {'<Plug>Commentary', 'Comment'}, -- Operator
                     cc = {'<Plug>CommentaryLine', 'Comment line'},
                     -- LSP
                     r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
-                    a = {"<cmd>lua require('telescope.builtin').lsp_code_actions()<CR>", 'Code action'},
+                    ['.'] = {"<cmd>lua require('telescope.builtin').lsp_code_actions()<CR>", 'Code action'},
                     d = {
                         name = 'diagnostics',
                         q = {'<cmd>lua vim.diagnostic.setqflist()<CR>', 'Workspace diagnostics in quickfix'},
                         l = {'<cmd>lua vim.diagnostic.setloclist()<CR>', 'Buffer diagnostics in loclist'},
                     },
-                    -- Others
+                    -- Other groups
                     g = {
                         name = 'git',
                         g = {':Git<CR>', 'Menu'},
@@ -167,8 +166,9 @@ require('packer').startup(function()
             -- Visual mappings
             wk.register({
                 Q = {'<cmd>lua vim.lsp.buf.range_formatting()<CR>', 'Format'},
+                ['<Leader>.'] = {"<cmd>lua require('telescope.builtin').lsp_range_code_actions()<CR>", 'Code action'},
                 ['<Leader>c'] = {'<Plug>Commentary', 'Comment'},
-                ['<Leader>a'] = {"<cmd>lua require('telescope.builtin').lsp_range_code_actions()<CR>", 'Code action'},
+                ['<Leader>a'] = {'<Plug>(EasyAlign)', 'Align'},
                 ['<Leader>gs'] = {':Gitsigns stage_hunk<CR>', 'Stage lines'},
                 ['<Leader>gr'] = {':Gitsigns reset_hunk<CR>', 'Reset lines'},
             }, { mode = 'x' })
@@ -197,6 +197,7 @@ require('packer').startup(function()
     ---- Editing
     use 'tpope/vim-commentary' -- Operator for commenting/uncommenting
     use 'wellle/targets.vim' -- Advanced pair text objects
+    use 'junegunn/vim-easy-align' -- Alignment
 
     use { -- Text objects for surroundings
         'tpope/vim-surround',
