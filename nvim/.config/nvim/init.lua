@@ -305,6 +305,7 @@ require('packer').startup(function()
             vim.g.copilot_filetypes = {
                 vimwiki = false,
                 TelescopePrompt = false,
+                sshconfig = false,
             }
         end
     }
