@@ -470,7 +470,12 @@ require('packer').startup(function()
     }
 
     ---- Aesthetics
-    use 'lukas-reineke/indent-blankline.nvim' -- Indent guides
+    use { -- Indent guides
+        'lukas-reineke/indent-blankline.nvim',
+        config = function()
+            require('indent_blankline').setup { show_current_context = true } -- Show current indent level by treesitter
+        end
+    }
 
     use { -- Show marks in sign column
         'kshenoy/vim-signature',
