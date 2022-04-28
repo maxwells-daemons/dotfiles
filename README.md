@@ -27,3 +27,4 @@ A (non-exhaustive) list of shell tools I use:
 - [fd](https://github.com/sharkdp/fd)
 - [fzf](https://github.com/junegunn/fzf)
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
+- [direnv](https://direnv.net/)

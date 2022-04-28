@@ -44,3 +44,6 @@ shopt -s checkwinsize
 
 # Set prompt
 PS1='[\u@\h \W]\$ '
+
+# Integrate with direnv
+[ -x "$(command -v direnv)" ] && eval "$(direnv hook bash)"

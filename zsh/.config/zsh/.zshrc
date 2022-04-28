@@ -55,3 +55,6 @@ unsetopt beep # Disable beep
 
 # iterm2 integration
 [ -e "${ZDOTDIR}/.iterm2_shell_integration.zsh" ] && source "${ZDOTDIR}/.iterm2_shell_integration.zsh"
+
+# direnv integration
+[ -x "$(command -v direnv)" ] && eval "$(direnv hook zsh)"
