@@ -27,6 +27,7 @@ then
     antigen bundle zsh-users/zsh-autosuggestions # Right-arrow autocompletion
     antigen bundle zsh-users/zsh-syntax-highlighting # Syntax highlighting
     antigen bundle zsh-users/zsh-history-substring-search # Up-arrow history search
+    antigen bundle nojhan/liquidprompt # Prompt
 
     antigen apply
 fi
