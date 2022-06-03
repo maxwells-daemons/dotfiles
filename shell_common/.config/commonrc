@@ -47,6 +47,12 @@ if [ $TERM = "xterm-kitty" ]; then
     alias ssh="kitty +kitten ssh"
 fi
 
+# If fd is called fdfind (Debian), alias it back
+if [ -x "$(command -v fdfind)" ]
+then
+    alias fd="fdfind"
+fi
+
 ### Configure programs
 # readline
 export INPUTRC=$XDG_CONFIG_HOME/inputrc
