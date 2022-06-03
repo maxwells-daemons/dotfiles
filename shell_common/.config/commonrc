@@ -14,6 +14,9 @@ export EDITOR=vim
 export BROWSER=google-chrome
 export PAGER=less
 
+### Add local bin to PATH
+export PATH="$HOME/bin:$PATH"
+
 ### Aliases
 # Use v for nvim or vim
 if [ -x "$(command -v nvim)" ]
