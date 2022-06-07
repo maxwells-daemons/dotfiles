@@ -273,12 +273,8 @@ require('packer').startup(function()
         'L3MON4D3/LuaSnip',
         config = function()
             ls = require('luasnip')
-            ls.snippets = {
-                all = {
-                    ls.snippet("date", ls.function_node(function() return os.date("%y-%m-%d") end)),
-                    ls.snippet("time", ls.function_node(function() return os.date("%I:%M %p") end)),
-                },
-                python = {
+            ls.add_snippets("python",
+                {
                     ls.snippet(
                         "pdb",
                         ls.text_node {
@@ -290,7 +286,7 @@ require('packer').startup(function()
                         }
                     ),
                 }
-            }
+            )
         end
     }
 
