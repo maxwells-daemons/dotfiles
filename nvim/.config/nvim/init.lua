@@ -442,6 +442,10 @@ require('packer').startup(function()
     }
     -- LSP config finished after plugins block
 
+
+    ---- Language support
+    use 'google/vim-jsonnet' -- jsonnet support
+
     ---- Notes
     use {
         'vimwiki/vimwiki',
