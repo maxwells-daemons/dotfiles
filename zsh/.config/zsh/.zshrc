@@ -36,6 +36,8 @@ fi
 bindkey -e # Use emacs line editing mode
 bindkey '^[[A' history-substring-search-up # Up arrow/down arrow to search history
 bindkey '^[[B' history-substring-search-down
+bindkey "^[[1;5C" forward-word # Fix ctrl+left/right arrows
+bindkey "^[[1;5D" backward-word
 
 ### History
 export HISTFILE="$ZDOTDIR/.zsh_history" # Move histfile
