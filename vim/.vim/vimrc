@@ -88,6 +88,12 @@ set display=truncate " Show when the file is truncated
 let g:tex_conceal="" " Disable latex symbol conversion
 set title " Set the window title to the current filename
 
+" For Python, use an 88-character colorcolumn to match Black style
+augroup PythonBlack
+    au BufEnter *.py set colorcolumn=88
+    au BufLeave *.py set colorcolumn=80
+augroup END
+
 " Do incremental searching when it's possible to timeout.
 if has('reltime')
   set incsearch
