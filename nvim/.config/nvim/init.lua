@@ -172,7 +172,6 @@ require('packer').startup(function()
                     ['<C-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
                 }, {mode='i'}
             )
-            -- NOTE: autocomplete mappings set up in the cmp section
         end
     }
 
@@ -187,87 +186,12 @@ require('packer').startup(function()
 
     ---- Autocompletion
     use {
-        'hrsh7th/nvim-cmp', -- Autocomplete engine
-        requires = {
-            -- Completion sources
-            'hrsh7th/cmp-nvim-lsp',
-            'hrsh7th/cmp-buffer',
-            'hrsh7th/cmp-path',
-            'saadparwaiz1/cmp_luasnip',
-            -- Display function signatures
-            'hrsh7th/cmp-nvim-lsp-signature-help',
-        },
-        after = 'LuaSnip',
-        config = function()
-            vim.o.completeopt = 'menu,menuone,noselect'
-
-            local cmp = require('cmp')
-            local luasnip = require('luasnip')
-
-            -- Setup completion
-            cmp.setup {
-                sources = cmp.config.sources {
-                    { name = 'luasnip' },
-                    { name = 'path' },
-                    { name = 'nvim_lsp' },
-                    { name = "nvim_lsp_signature_help" },
-                    { name = 'buffer' },
-                },
-                snippet = {
-                    expand = function(args) return luasnip.lsp_expand(args.body) end,
-                },
-                mapping = {
-                    ['<C-u>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
-                    ['<C-d>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
-                    ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
-                    ['<C-y>'] = cmp.config.disable,
-                    ['<C-e>'] = cmp.mapping({
-                        i = cmp.mapping.abort(),
-                        c = cmp.mapping.close(),
-                    }),
-                    ['<CR>'] = cmp.mapping.confirm({ select = true }),
-                    -- Tab completion (modified from: https://github.com/hrsh7th/nvim-cmp/wiki/Example-mappings)
-                    ["<Tab>"] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                            cmp.select_next_item()
-                        elseif luasnip.expand_or_jumpable() then
-                            luasnip.expand_or_jump()
-                        else
-                            fallback() -- Send the key that was mapped prior
-                        end
-                    end, { "i", "s" }),
-                    ["<S-Tab>"] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                            cmp.select_prev_item()
-                        elseif luasnip.jumpable(-1) then
-                            luasnip.jump(-1)
-                        else
-                            fallback()
-                        end
-                    end, { "i", "s" }),
-                },
+        'ms-jpq/coq_nvim', branch = 'coq',
+        setup = function()
+            vim.g.coq_settings = {
+                auto_start = 'shut-up',
+                clients = {snippets = {warn = {}}} -- Disable no-snippets warning
             }
-        end
-    }
-
-    use { -- Snippets
-        'L3MON4D3/LuaSnip',
-        config = function()
-            ls = require('luasnip')
-            ls.add_snippets("python",
-                {
-                    ls.snippet(
-                        "pdb",
-                        ls.text_node {
-                            "# TODO: remove",
-                            "# fmt: off",
-                            "import pdb; pdb.set_trace()",
-                            "# fmt: on",
-                            "",
-                        }
-                    ),
-                }
-            )
         end
     }
 
@@ -362,7 +286,33 @@ require('packer').startup(function()
     }
 
     ---- Language server
-    use 'neovim/nvim-lspconfig' -- Builtin configs for common language servers
+    use {
+        'neovim/nvim-lspconfig',  -- Builtin configs for common language servers
+        after = {'coq_nvim', 'vim-illuminate'},
+        config = function()
+            local lspconfig = require('lspconfig')
+            local illuminate = require('illuminate')
+            local coq = require('coq')
+
+            -- When we connect to a language server, setup illuminate
+            local on_lsp_attach = function(client, _)
+                illuminate.on_attach(client)
+            end
+
+            local setup_lsp = function(server)
+                local options = coq.lsp_ensure_capabilities({ on_attach = on_lsp_attach })
+                server:setup(options)
+            end
+
+            -- Setup language-specific LSP servers
+            -- NOTE: depends on:
+            -- - [pyright](https://github.com/microsoft/pyright)
+            -- - [rust-analyzer](https://rust-analyzer.github.io)
+            setup_lsp(lspconfig.pyright)
+            setup_lsp(lspconfig.rust_analyzer)
+        end
+    }
+
     use 'RRethy/vim-illuminate' -- Highlight matches for symbol under cursor
 
     use {
@@ -405,8 +355,6 @@ require('packer').startup(function()
             })
         end
     }
-    -- LSP config finished after plugins block
-
 
     ---- Language support
     use 'google/vim-jsonnet' -- jsonnet support
@@ -483,29 +431,3 @@ require('packer').startup(function()
         end
     }
 end)
-
----- LSP setup
-local lspconfig = require('lspconfig')
-
--- When we connect to a language server, setup illuminate
-local on_lsp_attach = function(client, _)
-    require('illuminate').on_attach(client)
-end
-
-local setup_lsp = function(server)
-    local options = {
-        on_attach = on_lsp_attach,
-        -- cmp setup: tell the LSP we can do completion
-        capabilities = require('cmp_nvim_lsp').update_capabilities(
-            vim.lsp.protocol.make_client_capabilities()
-        ),
-    }
-    server:setup(options)
-end
-
--- Setup language-specific LSP servers
--- NOTE: depends on:
--- - [pyright](https://github.com/microsoft/pyright)
--- - [rust-analyzer](https://rust-analyzer.github.io)
-setup_lsp(lspconfig.pyright)
-setup_lsp(lspconfig.rust_analyzer)
