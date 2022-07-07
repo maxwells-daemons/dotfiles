@@ -115,7 +115,7 @@ require('packer').startup(function()
                     cc = {'<Plug>CommentaryLine', 'Comment line'},
                     -- LSP
                     r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
-                    a = {"<cmd>lua require('telescope.builtin').lsp_code_actions()<CR>", 'Code action'},
+                    a = {"<cmd>lua vim.lsp.buf.code_action()<CR>", 'Code action'},
                     d = {
                         name = 'diagnostics',
                         q = {'<cmd>lua vim.diagnostic.setqflist()<CR>', 'Workspace diagnostics in quickfix'},
@@ -161,7 +161,7 @@ require('packer').startup(function()
             -- Visual mappings
             wk.register({
                 Q = {'<cmd>lua vim.lsp.buf.range_formatting()<CR>', 'Format'},
-                ['<Leader>a'] = {"<cmd>lua require('telescope.builtin').lsp_range_code_actions()<CR>", 'Code action'},
+                ['<Leader>a'] = {"<cmd>lua vim.lsp.buf.range_code_action()<CR>", 'Code action'},
                 ['<Leader>c'] = {'<Plug>Commentary', 'Comment'},
                 ['<Leader>gs'] = {':Gitsigns stage_hunk<CR>', 'Stage lines'},
                 ['<Leader>gr'] = {':Gitsigns reset_hunk<CR>', 'Reset lines'},
@@ -274,16 +274,7 @@ require('packer').startup(function()
             'nvim-telescope/telescope-symbols.nvim' -- To use: :Telescope sybmbols
         },
         after = {'which-key.nvim', 'telescope-fzf-native.nvim'},
-        config = function()
-            local telescope = require('telescope')
-            telescope.load_extension('fzf')
-            telescope.setup {
-                pickers = {
-                    lsp_code_actions = { theme = "cursor" },
-                    lsp_range_code_actions = { theme = "cursor" },
-                }
-            }
-        end
+        config = function() require('telescope').load_extension('fzf') end
     }
 
     use { -- Fast sorter for Telescope
