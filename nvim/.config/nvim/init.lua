@@ -342,7 +342,7 @@ require('packer').startup(function()
                     null_ls.builtins.formatting.prettier.with { -- Multi-language formatter
                         filetypes = {
                             'html', 'css', 'scss', 'less', 'javascript',
-                            'json', 'yaml', 'markdown', 'vimwiki'
+                            'json', 'yaml', 'markdown'
                         },
                         extra_args = { '--prose-wrap', 'always' }
                     },
@@ -364,29 +364,6 @@ require('packer').startup(function()
 
     ---- Language support
     use 'google/vim-jsonnet' -- jsonnet support
-
-    ---- Notes
-    use {
-        'vimwiki/vimwiki',
-        config = function()
-            -- TODO: integrate with Obsidian tags by modifying
-            -- s:markdown_syntax.tag_search and s:markdown_syntax.tag_match
-            -- (see: .local/share/nvim/site/pack/packer/start/vimwiki/syntax/vimwiki_markdown.vim)
-
-            -- TODO: integrate with TreeSitter markdown syntax
-
-            -- TODO: Pandoc integration
-            vim.g.vimwiki_list = {
-                {
-                    path = '~/media/documents/obsidian', -- NOTE: must update per host
-                    syntax = 'markdown',
-                    ext = '.md'
-                }
-            }
-            vim.g.vimwiki_listsyms = ' .oOx' -- Compatibility with Obsidian checkboxes
-            vim.g.vimwiki_auto_chdir = 1 -- Automatically chdir into wiki dir when entering a wiki file
-        end
-    }
 
     ---- Aesthetics
     use { -- Indent guides
