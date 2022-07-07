@@ -184,6 +184,12 @@ require('packer').startup(function()
         requires = { 'tpope/vim-repeat' }
     }
 
+    use { -- Fast 2-character motion
+        'ggandor/leap.nvim',
+        requires = { 'tpope/vim-repeat' },
+        config = function() require('leap').set_default_keymaps() end
+    }
+
     ---- Autocompletion
     use {
         'ms-jpq/coq_nvim', branch = 'coq',
