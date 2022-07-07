@@ -34,9 +34,8 @@ require('packer').startup(function()
         config = function()
             local wk = require('which-key')
 
-            -- Readable names for custom text objects
+            -- Readable names for treesitter-textobjects
             local objects = require('which-key.plugins.presets').objects
-            -- treesitter-textobjects
             objects['af'] = 'a function'
             objects['if'] = 'inner function'
             objects['ac'] = 'a comment'
@@ -59,8 +58,6 @@ require('packer').startup(function()
                     name = 'previous',
                     c = {"&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", 'Previous change', expr = true},
                     d = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous diagnostic'},
-                    b = {':bprevious<CR>', 'Previous buffer'},
-                    B = {':bfirst', 'First buffer'},
                     l = {'<Plug>(qf_loc_previous)', 'Previous loclist'},
                     L = {':lfirst<CR>', 'First loclist'},
                     q = {'<Plug>(qf_qf_previous)', 'Previous quickfix'},
@@ -70,8 +67,6 @@ require('packer').startup(function()
                     name = 'next',
                     c = {"&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", 'Next change', expr = true},
                     d = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next diagnostic'},
-                    b = {':bnext<CR>', 'Next buffer'},
-                    B = {':blast<CR>', 'Last buffer'},
                     l = {'<Plug>(qf_loc_next)', 'Next loclist'},
                     L = {':llast<CR>', 'Last loclist'},
                     q = {'<Plug>(qf_qf_next)', 'Next quickfix'},
@@ -109,18 +104,18 @@ require('packer').startup(function()
                 },
                 -- Actions
                 Q = {'<cmd>lua vim.lsp.buf.formatting()<CR>', 'Format file'},
+
                 ['<Leader>'] = {
                     -- UI
                     ['/'] = 'Clear highlighting',
                     q = {'<Plug>(qf_qf_toggle_stay)', 'Toggle quickfix'},
                     l = {'<Plug>(qf_loc_toggle_stay)', 'Toggle loclist'},
                     -- Editing
-                    a = {'<Plug>(EasyAlign)', 'Align'},
                     c = {'<Plug>Commentary', 'Comment'}, -- Operator
                     cc = {'<Plug>CommentaryLine', 'Comment line'},
                     -- LSP
                     r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
-                    ['.'] = {"<cmd>lua require('telescope.builtin').lsp_code_actions()<CR>", 'Code action'},
+                    a = {"<cmd>lua require('telescope.builtin').lsp_code_actions()<CR>", 'Code action'},
                     d = {
                         name = 'diagnostics',
                         q = {'<cmd>lua vim.diagnostic.setqflist()<CR>', 'Workspace diagnostics in quickfix'},
@@ -138,6 +133,7 @@ require('packer').startup(function()
                         R = {'<cmd>Gitsigns reset_buffer<CR>', 'Reset everything'},
                         p = {'<cmd>Gitsigns preview_hunk<CR>', 'Preview hunk'},
                         b = {'<cmd>Gitsigns blame_line<CR>', 'View line blame'},
+                        d = {'<cmd>Gitsigns toggle_deleted<CR>', 'Toggle deleted line view'},
                     },
                     f = {
                         name = 'find',
@@ -150,7 +146,6 @@ require('packer').startup(function()
                         d = {"<cmd>lua require('telescope.builtin').diagnostics {bufnr=0}<cr>", 'Buffer diagnostics'},
                         D = {"<cmd>lua require('telescope.builtin').diagnostics()<cr>", 'Workspace diagnostics'},
                     },
-                    w = { name = 'wiki' },
                 },
                 -- Readable names for builtin mappings
                 ['Y'] = 'Yank to end of line',
@@ -166,9 +161,8 @@ require('packer').startup(function()
             -- Visual mappings
             wk.register({
                 Q = {'<cmd>lua vim.lsp.buf.range_formatting()<CR>', 'Format'},
-                ['<Leader>.'] = {"<cmd>lua require('telescope.builtin').lsp_range_code_actions()<CR>", 'Code action'},
+                ['<Leader>a'] = {"<cmd>lua require('telescope.builtin').lsp_range_code_actions()<CR>", 'Code action'},
                 ['<Leader>c'] = {'<Plug>Commentary', 'Comment'},
-                ['<Leader>a'] = {'<Plug>(EasyAlign)', 'Align'},
                 ['<Leader>gs'] = {':Gitsigns stage_hunk<CR>', 'Stage lines'},
                 ['<Leader>gr'] = {':Gitsigns reset_hunk<CR>', 'Reset lines'},
             }, { mode = 'x' })
@@ -181,23 +175,12 @@ require('packer').startup(function()
                 }, {mode='i'}
             )
             -- NOTE: autocomplete mappings set up in the cmp section
-
-            -- Quickfix menu mappings
-            vim.cmd [[
-            function! QFMappings()
-                nmap <buffer> {     <Plug>(qf_previous_file)
-                nmap <buffer> }     <Plug>(qf_next_file)
-            endfunction
-
-            autocmd FileType qf call QFMappings()
-            ]]
         end
     }
 
     ---- Editing
     use 'tpope/vim-commentary' -- Operator for commenting/uncommenting
     use 'wellle/targets.vim' -- Advanced pair text objects
-    use 'junegunn/vim-easy-align' -- Alignment
 
     use { -- Text objects for surroundings
         'tpope/vim-surround',
