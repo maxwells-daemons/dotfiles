@@ -170,8 +170,6 @@ require('packer').startup(function()
             -- Insert mode mappings
             wk.register({
                     ['<C-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
-                    ['<C-v>'] = {'copilot#Accept("")', 'Accept copilot suggestion', expr = 1},
-                    ['<C-c>'] = {'copilot#Dismiss()', 'Dismiss copilot suggestion', expr = 1},
                 }, {mode='i'}
             )
             -- NOTE: autocomplete mappings set up in the cmp section
@@ -270,22 +268,6 @@ require('packer').startup(function()
                     ),
                 }
             )
-        end
-    }
-
-    use { -- Copilot autocomplete
-        'github/copilot.vim',
-        -- NOTE: depends on Node.js>=12
-        setup = function()
-            -- We map the copilot key manually
-            vim.g.copilot_no_tab_map = true
-            vim.g.copilot_assume_mapped = true
-            vim.g.copilot_tab_fallback = ""
-            vim.g.copilot_filetypes = {
-                vimwiki = false,
-                TelescopePrompt = false,
-                sshconfig = false,
-            }
         end
     }
 
