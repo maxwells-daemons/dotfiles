@@ -196,7 +196,8 @@ require('packer').startup(function()
         setup = function()
             vim.g.coq_settings = {
                 auto_start = 'shut-up',
-                clients = {snippets = {warn = {}}} -- Disable no-snippets warning
+                clients = { snippets = {warn = {}} }, -- Disable no-snippets warning
+                keymap = { jump_to_mark = '' }, -- Disable jump-to-mark keybind
             }
         end
     }
