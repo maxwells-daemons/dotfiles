@@ -11,6 +11,9 @@ vim.opt.signcolumn = 'yes' -- Always display signcolumn to avoid jitter on LSP d
 -- When hovering over a line with diagnostics, show them in a floating window
 vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line", focusable = false })'
 
+-- Highlight direnv files as bash
+vim.cmd 'autocmd BufNewFile,BufRead .envrc set ft=bash'
+
 --[[
 
 TODO:
