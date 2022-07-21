@@ -114,11 +114,12 @@ require('packer').startup(function()
                     q = {'<Plug>(qf_qf_toggle_stay)', 'Toggle quickfix'},
                     l = {'<Plug>(qf_loc_toggle_stay)', 'Toggle loclist'},
                     -- Editing
+                    a = {'<Plug>(EasyAlign)', 'Align'},
                     c = {'<Plug>Commentary', 'Comment'}, -- Operator
                     cc = {'<Plug>CommentaryLine', 'Comment line'},
                     -- LSP
                     r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
-                    a = {"<cmd>lua vim.lsp.buf.code_action()<CR>", 'Code action'},
+                    ['.'] = {"<cmd>lua vim.lsp.buf.code_action()<CR>", 'Code action'},
                     d = {
                         name = 'diagnostics',
                         q = {'<cmd>lua vim.diagnostic.setqflist()<CR>', 'Workspace diagnostics in quickfix'},
@@ -164,7 +165,8 @@ require('packer').startup(function()
             -- Visual mappings
             wk.register({
                 Q = {'<cmd>lua vim.lsp.buf.range_formatting()<CR>', 'Format'},
-                ['<Leader>a'] = {"<cmd>lua vim.lsp.buf.range_code_action()<CR>", 'Code action'},
+                ['<Leader>a'] = {'<Plug>(EasyAlign)', 'Align'},
+                ['<Leader>.'] = {"<cmd>lua vim.lsp.buf.range_code_action()<CR>", 'Code action'},
                 ['<Leader>c'] = {'<Plug>Commentary', 'Comment'},
                 ['<Leader>gs'] = {':Gitsigns stage_hunk<CR>', 'Stage lines'},
                 ['<Leader>gr'] = {':Gitsigns reset_hunk<CR>', 'Reset lines'},
@@ -181,6 +183,7 @@ require('packer').startup(function()
     ---- Editing
     use 'tpope/vim-commentary' -- Operator for commenting/uncommenting
     use 'wellle/targets.vim' -- Advanced pair text objects
+    use 'junegunn/vim-easy-align' -- Alignment
 
     use { -- Text objects for surroundings
         'tpope/vim-surround',
