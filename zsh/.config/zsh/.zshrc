@@ -39,6 +39,10 @@ bindkey '^[[B' history-substring-search-down
 bindkey "^[[1;5C" forward-word # Fix ctrl+left/right arrows
 bindkey "^[[1;5D" backward-word
 
+# Alt-backspace & ctrl-W: only delete word up to /
+autoload -U select-word-style
+select-word-style bash
+
 ### History
 export HISTFILE="$ZDOTDIR/.zsh_history" # Move histfile
 export HISTSIZE=10000 # Save 10K lines of history in memory
