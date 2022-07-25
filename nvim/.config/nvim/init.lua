@@ -11,6 +11,9 @@ vim.opt.signcolumn = 'yes' -- Always display signcolumn to avoid jitter on LSP d
 -- When hovering over a line with diagnostics, show them in a floating window
 vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line", focusable = false })'
 
+-- Use system python for nvim in all virtualenvs
+vim.g.python3_host_prog = '/usr/bin/python'
+
 -- Highlight direnv files as bash
 vim.cmd 'autocmd BufNewFile,BufRead .envrc set ft=bash'
 
@@ -202,8 +205,9 @@ require('packer').startup(function()
         setup = function()
             vim.g.coq_settings = {
                 auto_start = 'shut-up',
-                clients = { snippets = {warn = {}} }, -- Disable no-snippets warning
+                clients = { snippets = { warn = {} } }, -- Disable no-snippets warning
                 keymap = { jump_to_mark = '' }, -- Disable jump-to-mark keybind
+                display = { icons = { mode = 'none' }}, -- Disable icons
             }
         end
     }
