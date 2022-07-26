@@ -9,8 +9,8 @@ set nocompatible
 " Use <Space> as the leader
 let mapleader = "\<Space>"
 
-" <Leader>/ in normal mode clears the search highlight
-nnoremap <silent> <Leader>/ :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
+" Esc in normal mode clears the search highlight
+nnoremap <silent> <Esc> :nohlsearch<CR>
 
 " Move between splits with <Ctrl>-HJKL
 nmap <C-h> <C-W>h
@@ -18,12 +18,19 @@ nmap <C-j> <C-W>j
 nmap <C-k> <C-W>k
 nmap <C-l> <C-W>l
 
+" Tab cycles through buffers
+nmap <Tab> :bnext<CR>
+nmap <S-Tab> :bprevious<CR>
+
 " Make Y work like C and D
 nmap Y y$
 
 " Stay in visual mode when indenting visual selections
 xnoremap > >gv
 xnoremap < <gv
+
+" P in visual mode pastes and re-copies the pasted text
+xnoremap P "_dP
 
 " Allow backspacing over everything in insert mode.
 set backspace=indent,eol,start
@@ -123,7 +130,7 @@ endif
 
 " Delete comment character when joining commented lines
 if v:version > 703 || v:version == 703 && has("patch541")
-    set formatoptions+=j 
+    set formatoptions+=j
 endif
 
 " Save files by overwriting; prevents duplicate notifications
@@ -141,7 +148,7 @@ endif
 " Ensure './tags;' is in the tag file list
 if has('path_extra')
     setglobal tags-=./tags tags-=./tags; tags^=./tags;
-endif 
+endif
 
 " Don't save global options between sessions or views
 set sessionoptions-=options
@@ -153,7 +160,7 @@ if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
     runtime! macros/matchit.vim
 endif
 
-" Workaround for Kitty rendering bug 
+" Workaround for Kitty rendering bug
 " (See: https://github.com/kovidgoyal/kitty/issues/108)
 let &t_ut=''
 
