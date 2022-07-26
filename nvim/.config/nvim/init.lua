@@ -109,6 +109,7 @@ require('packer').startup(function()
                     q = {'<Plug>(qf_qf_toggle_stay)', 'Toggle quickfix'},
                     l = {'<Plug>(qf_loc_toggle_stay)', 'Toggle loclist'},
                     -- LSP
+                    a = {':lua require("neogen").generate()<CR>', 'Generate annotation'},
                     r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
                     ['.'] = {"<cmd>lua vim.lsp.buf.code_action()<CR>", 'Code action'},
                     d = {
@@ -185,6 +186,11 @@ require('packer').startup(function()
         'ggandor/leap.nvim',
         requires = { 'tpope/vim-repeat' },
         config = function() require('leap').set_default_keymaps() end
+    }
+
+    use { -- Generate comment annotations
+        'danymat/neogen',
+        config = function() require('neogen').setup {} end
     }
 
     ---- Autocompletion
