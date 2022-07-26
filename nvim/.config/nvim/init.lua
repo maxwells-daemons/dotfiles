@@ -40,19 +40,6 @@ require('packer').startup(function()
         config = function()
             local wk = require('which-key')
 
-            -- Readable names for treesitter-textobjects
-            local objects = require('which-key.plugins.presets').objects
-            objects['af'] = 'a function'
-            objects['if'] = 'inner function'
-            objects['ac'] = 'a comment'
-            objects['ic'] = 'a comment'
-            objects['aC'] = 'a Class'
-            objects['iC'] = 'inner Class'
-            objects['ai'] = 'a conditional'
-            objects['ii'] = 'inner conditional'
-            objects['al'] = 'a loop'
-            objects['il'] = 'inner loop'
-
             wk.setup {
                 motions = {count = false},  -- Disable WhichKey for actions like "c3..."
                 plugins = {marks = false},  -- Don't show for marks due to flickering with ``
@@ -85,8 +72,8 @@ require('packer').startup(function()
 
             -- Text objects: used in visual and operator-pending modes
             local text_objects = {
-                ag = {':<C-U>Gitsigns select_hunk<CR>', 'Git hunk'},
-                ig = {':<C-U>Gitsigns select_hunk<CR>', 'Git hunk'},
+                ac = {':<C-U>Gitsigns select_hunk<CR>', 'Change'},
+                ic = {':<C-U>Gitsigns select_hunk<CR>', 'Change'},
             }
             wk.register(text_objects, { mode = 'x' })
             wk.register(text_objects, { mode = 'o' })
@@ -111,15 +98,16 @@ require('packer').startup(function()
                 -- Actions
                 Q = {'<cmd>lua vim.lsp.buf.formatting()<CR>', 'Format file'},
 
+                -- Editing
+                ['ga'] = {'<Plug>(EasyAlign)', 'Align'},
+                ['g/'] = {'<Plug>Commentary', 'Comment'}, -- Operator
+                ['g//'] = {'<Plug>CommentaryLine', 'Comment line'},
+
                 ['<Leader>'] = {
                     -- UI
                     ['/'] = 'Clear highlighting',
                     q = {'<Plug>(qf_qf_toggle_stay)', 'Toggle quickfix'},
                     l = {'<Plug>(qf_loc_toggle_stay)', 'Toggle loclist'},
-                    -- Editing
-                    a = {'<Plug>(EasyAlign)', 'Align'},
-                    c = {'<Plug>Commentary', 'Comment'}, -- Operator
-                    cc = {'<Plug>CommentaryLine', 'Comment line'},
                     -- LSP
                     r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
                     ['.'] = {"<cmd>lua vim.lsp.buf.code_action()<CR>", 'Code action'},
@@ -168,9 +156,9 @@ require('packer').startup(function()
             -- Visual mappings
             wk.register({
                 Q = {'<cmd>lua vim.lsp.buf.range_formatting()<CR>', 'Format'},
-                ['<Leader>a'] = {'<Plug>(EasyAlign)', 'Align'},
+                ['g/'] = {'<Plug>Commentary', 'Comment'},
+                ['ga'] = {'<Plug>(EasyAlign)', 'Align'},
                 ['<Leader>.'] = {"<cmd>lua vim.lsp.buf.range_code_action()<CR>", 'Code action'},
-                ['<Leader>c'] = {'<Plug>Commentary', 'Comment'},
                 ['<Leader>gs'] = {':Gitsigns stage_hunk<CR>', 'Stage lines'},
                 ['<Leader>gr'] = {':Gitsigns reset_hunk<CR>', 'Reset lines'},
             }, { mode = 'x' })
@@ -248,17 +236,49 @@ require('packer').startup(function()
                         enable = true,
                         lookahead = true,
                         keymaps = {
+                            ["ab"] = "@block.outer",
+                            ["ib"] = "@block.inner",
                             ["af"] = "@function.outer",
                             ["if"] = "@function.inner",
-                            ["ac"] = "@comment.outer",
-                            ["ic"] = "@comment.outer",
+                            ["a/"] = "@comment.outer",
+                            ["i/"] = "@comment.outer",
                             ["aC"] = "@class.outer",
                             ["iC"] = "@class.inner",
                             ["ai"] = "@conditional.outer",
                             ["ii"] = "@conditional.inner",
                             ["al"] = "@loop.outer",
                             ["il"] = "@loop.inner",
+                            ["aa"] = "@parameter.outer",
+                            ["ia"] = "@parameter.inner",
                         }
+                    },
+                    move = {
+                        enable = true,
+                        set_jumps = true,
+                        goto_next_start = {
+                            ["]f"] = "@function.outer",
+                            ["]/"] = "@comment.outer",
+                            ["]C"] = "@class.outer",
+                            ["]i"] = "@conditional.outer",
+                            ["]a"] = "@parameter.inner",
+                        },
+                        goto_next_end = {
+                            ["]F"] = "@function.outer",
+                            ["]I"] = "@conditional.outer",
+                            ["]A"] = "@parameter.inner",
+                        },
+                        goto_previous_start = {
+                            ["[f"] = "@function.outer",
+                            ["[/"] = "@comment.outer",
+                            ["[C"] = "@class.outer",
+                            ["[i"] = "@conditional.outer",
+                            ["[a"] = "@parameter.inner",
+                        },
+                        goto_previous_end = {
+                            ["[F"] = "@function.outer",
+                            ["[I"] = "@conditional.outer",
+                            ["[A"] = "@parameter.inner",
+                        },
                     }
                 },
             }
