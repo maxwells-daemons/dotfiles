@@ -18,10 +18,6 @@ nmap <C-j> <C-W>j
 nmap <C-k> <C-W>k
 nmap <C-l> <C-W>l
 
-" Tab cycles through buffers
-nmap <Tab> :bnext<CR>
-nmap <S-Tab> :bprevious<CR>
-
 " Make Y work like C and D
 nmap Y y$
 

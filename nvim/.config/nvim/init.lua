@@ -12,7 +12,7 @@ vim.opt.signcolumn = 'yes' -- Always display signcolumn to avoid jitter on LSP d
 vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line", focusable = false })'
 
 -- Use system python for nvim in all virtualenvs
-vim.g.python3_host_prog = '/usr/bin/python'
+vim.g.python3_host_prog = '/opt/homebrew/bin/python3'
 
 -- Highlight direnv files as bash
 vim.cmd 'autocmd BufNewFile,BufRead .envrc set ft=bash'
@@ -40,6 +40,21 @@ require('packer').startup(function()
         config = function()
             local wk = require('which-key')
 
+            -- Readable names for treesitter-textobjects
+            local objects = require('which-key.plugins.presets').objects
+            objects['ac'] = 'a class'
+            objects['ic'] = 'inner class'
+            objects['a/'] = 'a comment'
+            objects['i/'] = 'a comment'
+            objects['ai'] = 'a conditional'
+            objects['ii'] = 'inner conditional'
+            objects['af'] = 'a function'
+            objects['if'] = 'inner function'
+            objects['al'] = 'a loop'
+            objects['il'] = 'inner loop'
+            objects['aa'] = 'a parameter'
+            objects['ia'] = 'inner parameter'
+
             wk.setup {
                 motions = {count = false},  -- Disable WhichKey for actions like "c3..."
                 plugins = {marks = false},  -- Don't show for marks due to flickering with ``
@@ -49,21 +64,55 @@ require('packer').startup(function()
             local motions = {
                 ['['] = {
                     name = 'previous',
-                    c = {"&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", 'Previous change', expr = true},
-                    d = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous diagnostic'},
+                    -- UI
+                    b = {':bprevious<CR>', 'Previous buffer'},
+                    B = {':bfirst<CR>', 'First buffer'},
+                    t = {':tprevious<CR>', 'Previous tab'},
+                    T = {':tfirst<CR>', 'First tab'},
+                    -- Quickfix & loclist
                     l = {'<Plug>(qf_loc_previous)', 'Previous loclist'},
                     L = {':lfirst<CR>', 'First loclist'},
                     q = {'<Plug>(qf_qf_previous)', 'Previous quickfix'},
                     Q = {':cfirst<CR>', 'First quickfix'},
+                    -- Code
+                    g = {"&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", 'Previous git hunk', expr = true},
+                    d = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous diagnostic'},
+                    -- Treesitter
+                    c = 'Previous class start',
+                    C = 'Previous class end',
+                    ['/'] = 'Previous comment',
+                    i = 'Previous conditional start',
+                    I = 'Previous conditional end',
+                    f = 'Previous function start',
+                    F = 'Previous function end',
+                    a = 'Previous argument start',
+                    A = 'Previous argument end',
                 },
                 [']'] = {
                     name = 'next',
-                    c = {"&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", 'Next change', expr = true},
-                    d = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next diagnostic'},
+                    -- UI
+                    b = {':bnext<CR>', 'Next buffer'},
+                    B = {':blast<CR>', 'Last buffer'},
+                    t = {':tnext<CR>', 'Next tab'},
+                    T = {':tlast<CR>', 'Last tab'},
+                    -- Quickfix & loclist
                     l = {'<Plug>(qf_loc_next)', 'Next loclist'},
                     L = {':llast<CR>', 'Last loclist'},
                     q = {'<Plug>(qf_qf_next)', 'Next quickfix'},
                     Q = {':clast<CR>', 'Last quickfix'},
+                    -- Code
+                    g = {"&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", 'Next git hunk', expr = true},
+                    d = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next diagnostic'},
+                    -- Treesitter
+                    c = 'Next class start',
+                    C = 'Next class end',
+                    ['/'] = 'Next comment',
+                    i = 'Next conditional start',
+                    I = 'Next conditional end',
+                    f = 'Next function start',
+                    F = 'Next function end',
+                    a = 'Next argument start',
+                    A = 'Next argument end',
                 },
             }
             wk.register(motions, { mode = 'n' })
@@ -72,8 +121,8 @@ require('packer').startup(function()
 
             -- Text objects: used in visual and operator-pending modes
             local text_objects = {
-                ac = {':<C-U>Gitsigns select_hunk<CR>', 'Change'},
-                ic = {':<C-U>Gitsigns select_hunk<CR>', 'Change'},
+                ag = {':<C-U>Gitsigns select_hunk<CR>', 'Git hunk'},
+                ig = {':<C-U>Gitsigns select_hunk<CR>', 'Git hunk'},
             }
             wk.register(text_objects, { mode = 'x' })
             wk.register(text_objects, { mode = 'o' })
@@ -85,8 +134,12 @@ require('packer').startup(function()
                 ['<C-j>'] = 'Window down',
                 ['<C-k>'] = 'Window up',
                 ['<C-l>'] = 'Window right',
-                ['<c-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
+
+                ['<Esc>'] = 'Clear highlighting',
+
+                ['<C-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
                 K = {'<cmd>lua vim.lsp.buf.hover()<CR>', 'Get symbol info'},
+
                 -- Jumps
                 g = {
                     d = {'<cmd>lua vim.lsp.buf.definition()<CR>', 'Go to definition'},
@@ -95,29 +148,30 @@ require('packer').startup(function()
                     t = {'<cmd>lua vim.lsp.buf.type_definition()<CR>', 'Go to type definition'},
                     r = {'<cmd>lua vim.lsp.buf.references()<CR>', 'Get references in quickfix'},
                 },
-                -- Actions
-                Q = {'<cmd>lua vim.lsp.buf.formatting()<CR>', 'Format file'},
-
-                -- Editing
-                ['ga'] = {'<Plug>(EasyAlign)', 'Align'},
-                ['g/'] = {'<Plug>Commentary', 'Comment'}, -- Operator
-                ['g//'] = {'<Plug>CommentaryLine', 'Comment line'},
 
                 ['<Leader>'] = {
                     -- UI
-                    ['/'] = 'Clear highlighting',
                     q = {'<Plug>(qf_qf_toggle_stay)', 'Toggle quickfix'},
                     l = {'<Plug>(qf_loc_toggle_stay)', 'Toggle loclist'},
-                    -- LSP
-                    a = {':lua require("neogen").generate()<CR>', 'Generate annotation'},
-                    r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
-                    ['.'] = {"<cmd>lua vim.lsp.buf.code_action()<CR>", 'Code action'},
+
+                    -- Editing
+                    a = {'<Plug>(EasyAlign)', 'Align'},
+                    ['/'] = {'<Plug>Commentary', 'Comment operator'},
+                    ['//'] = {'<Plug>CommentaryLine', 'Comment line'},
+
+                    -- Groups
+                    l = {
+                        name = 'lsp',
+                        f = {'<cmd>lua vim.lsp.buf.formatting()<CR>', 'Format buffer'},
+                        r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
+                        a = {"<cmd>lua vim.lsp.buf.code_action()<CR>", 'Code action'},
+                        ['/'] = {':lua require("neogen").generate()<CR>', 'Generate comment'},
+                    },
                     d = {
                         name = 'diagnostics',
                         q = {'<cmd>lua vim.diagnostic.setqflist()<CR>', 'Workspace diagnostics in quickfix'},
                         l = {'<cmd>lua vim.diagnostic.setloclist()<CR>', 'Buffer diagnostics in loclist'},
                     },
-                    -- Other groups
                     g = {
                         name = 'git',
                         g = {':Git<CR>', 'Menu'},
@@ -149,6 +203,8 @@ require('packer').startup(function()
                 ['?'] = 'Search backward',
                 ['m'] = 'Place mark',
                 ['dm'] = 'Delete mark', -- From Signature
+                ['s'] = 'Leap forward', -- From Leap
+                ['S'] = 'Leap backward',
                 -- Ignored mappings
                 ['U'] = 'which_key_ignore',
                 ['<C-Space>'] = 'which_key_ignore',
@@ -156,10 +212,11 @@ require('packer').startup(function()
 
             -- Visual mappings
             wk.register({
-                Q = {'<cmd>lua vim.lsp.buf.range_formatting()<CR>', 'Format'},
-                ['g/'] = {'<Plug>Commentary', 'Comment'},
-                ['ga'] = {'<Plug>(EasyAlign)', 'Align'},
-                ['<Leader>.'] = {"<cmd>lua vim.lsp.buf.range_code_action()<CR>", 'Code action'},
+                P = 'Paste without overwriting',
+                ['<Leader>a'] = {'<Plug>(EasyAlign)', 'Align'},
+                ['<Leader>/'] = {'<Plug>Commentary', 'Comment'},
+                ['<Leader>lf'] = {'<cmd>lua vim.lsp.buf.range_formatting()<CR>', 'Format'},
+                ['<Leader>la'] = {"<cmd>lua vim.lsp.buf.range_code_action()<CR>", 'Code action'},
                 ['<Leader>gs'] = {':Gitsigns stage_hunk<CR>', 'Stage lines'},
                 ['<Leader>gr'] = {':Gitsigns reset_hunk<CR>', 'Reset lines'},
             }, { mode = 'x' })
@@ -242,16 +299,14 @@ require('packer').startup(function()
                         enable = true,
                         lookahead = true,
                         keymaps = {
-                            ["ab"] = "@block.outer",
-                            ["ib"] = "@block.inner",
-                            ["af"] = "@function.outer",
-                            ["if"] = "@function.inner",
+                            ["ac"] = "@class.outer",
+                            ["ic"] = "@class.inner",
                             ["a/"] = "@comment.outer",
                             ["i/"] = "@comment.outer",
-                            ["aC"] = "@class.outer",
-                            ["iC"] = "@class.inner",
                             ["ai"] = "@conditional.outer",
                             ["ii"] = "@conditional.inner",
+                            ["af"] = "@function.outer",
+                            ["if"] = "@function.inner",
                             ["al"] = "@loop.outer",
                             ["il"] = "@loop.inner",
                             ["aa"] = "@parameter.outer",
@@ -262,27 +317,29 @@ require('packer').startup(function()
                         enable = true,
                         set_jumps = true,
                         goto_next_start = {
-                            ["]f"] = "@function.outer",
+                            ["]c"] = "@class.outer",
                             ["]/"] = "@comment.outer",
-                            ["]C"] = "@class.outer",
                             ["]i"] = "@conditional.outer",
+                            ["]f"] = "@function.outer",
                             ["]a"] = "@parameter.inner",
                         },
                         goto_next_end = {
-                            ["]F"] = "@function.outer",
+                            ["]C"] = "@class.outer",
                             ["]I"] = "@conditional.outer",
+                            ["]F"] = "@function.outer",
                             ["]A"] = "@parameter.inner",
                         },
                         goto_previous_start = {
-                            ["[f"] = "@function.outer",
+                            ["[c"] = "@class.outer",
                             ["[/"] = "@comment.outer",
-                            ["[C"] = "@class.outer",
                             ["[i"] = "@conditional.outer",
+                            ["[f"] = "@function.outer",
                             ["[a"] = "@parameter.inner",
                         },
                         goto_previous_end = {
-                            ["[F"] = "@function.outer",
+                            ["[C"] = "@class.outer",
                             ["[I"] = "@conditional.outer",
+                            ["[F"] = "@function.outer",
                             ["[A"] = "@parameter.inner",
                         },
                     }
@@ -308,7 +365,7 @@ require('packer').startup(function()
         -- - [fd](https://github.com/sharkdp/fd)
         requires = {
             'nvim-lua/plenary.nvim',
-            'nvim-telescope/telescope-symbols.nvim' -- To use: :Telescope sybmbols
+            'nvim-telescope/telescope-symbols.nvim' -- To use: :Telescope symbols
         },
         after = {'which-key.nvim', 'telescope-fzf-native.nvim'},
         config = function() require('telescope').load_extension('fzf') end
