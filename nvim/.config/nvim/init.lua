@@ -8,14 +8,26 @@ vim.cmd 'source ~/.vim/vimrc'
 vim.opt.foldcolumn = '1' -- Always display foldcolumn to avoid jitter on folding
 vim.opt.signcolumn = 'yes' -- Always display signcolumn to avoid jitter on LSP diagnostics
 
--- When hovering over a line with diagnostics, show them in a floating window
-vim.cmd 'autocmd CursorHold * lua vim.diagnostic.open_float(nil, { scope = "line", focusable = false })'
-
 -- Use system python for nvim in all virtualenvs
 vim.g.python3_host_prog = '/opt/homebrew/bin/python3'
 
--- Highlight direnv files as bash
-vim.cmd 'autocmd BufNewFile,BufRead .envrc set ft=bash'
+---- User autocmds
+local lspGroup = vim.api.nvim_create_augroup('UserLsp', {})
+vim.api.nvim_create_autocmd('CursorHold', { 
+    desc = 'Show floating diagnostics on the cursor line',
+    group = lspGroup,
+    callback = function() 
+        vim.diagnostic.open_float(nil, { scope = "line", focusable = false }) 
+    end,
+})
+
+local direnvGroup = vim.api.nvim_create_augroup('UserDirenv', {})
+vim.api.nvim_create_autocmd({'BufNewFile', 'BufRead'}, {
+    desc = 'Highlight direnv files as bash',
+    pattern = {'.envrc', '.env'},
+    group = direnvGroup,
+    callback = function() vim.opt.filetype = 'bash' end
+})
 
 --[[
 
