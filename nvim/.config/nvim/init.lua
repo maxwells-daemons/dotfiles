@@ -489,6 +489,7 @@ require('packer').startup(function()
     ---- Misc
     use 'romainl/vim-qf' -- Make quickfix behavior more convenient
     use 'moll/vim-bbye' -- Add :Bdelete to close buffers without modifying layout
+    use 'farmergreg/vim-lastplace' -- Resume editing at last cursor location
 
     -- Enable short CursorHold updatetime without writing swap too often
     -- TODO: remove when https://github.com/neovim/neovim/issues/12587 is fixed
