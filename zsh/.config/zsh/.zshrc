@@ -40,6 +40,7 @@ bindkey "^[[1;5C" forward-word # Fix ctrl+left/right arrows
 bindkey "^[[1;5D" backward-word
 
 # Alt-backspace & ctrl-W: only delete word up to /
+export WORDCHARS='' # Only alphanumeric spans are considered a single word
 autoload -U select-word-style
 select-word-style bash
 

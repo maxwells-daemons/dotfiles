@@ -18,7 +18,7 @@ vim.api.nvim_create_autocmd('CursorHold', {
     group = lspGroup,
     callback = function() 
         vim.diagnostic.open_float(nil, { scope = "line", focusable = false }) 
-    end,
+    end
 })
 
 local direnvGroup = vim.api.nvim_create_augroup('UserDirenv', {})
