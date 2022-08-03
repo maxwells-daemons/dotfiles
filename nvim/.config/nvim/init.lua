@@ -79,8 +79,8 @@ require('packer').startup(function()
                     -- UI
                     b = {':bprevious<CR>', 'Previous buffer'},
                     B = {':bfirst<CR>', 'First buffer'},
-                    t = {':tprevious<CR>', 'Previous tab'},
-                    T = {':tfirst<CR>', 'First tab'},
+                    t = {':tabprevious<CR>', 'Previous tab'},
+                    T = {':tabfirst<CR>', 'First tab'},
                     -- Quickfix & loclist
                     l = {'<Plug>(qf_loc_previous)', 'Previous loclist'},
                     L = {':lfirst<CR>', 'First loclist'},
@@ -105,8 +105,8 @@ require('packer').startup(function()
                     -- UI
                     b = {':bnext<CR>', 'Next buffer'},
                     B = {':blast<CR>', 'Last buffer'},
-                    t = {':tnext<CR>', 'Next tab'},
-                    T = {':tlast<CR>', 'Last tab'},
+                    t = {':tabnext<CR>', 'Next tab'},
+                    T = {':tablast<CR>', 'Last tab'},
                     -- Quickfix & loclist
                     l = {'<Plug>(qf_loc_next)', 'Next loclist'},
                     L = {':llast<CR>', 'Last loclist'},
