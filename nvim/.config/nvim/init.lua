@@ -13,11 +13,11 @@ vim.g.python3_host_prog = '/opt/homebrew/bin/python3'
 
 ---- User autocmds
 local lspGroup = vim.api.nvim_create_augroup('UserLsp', {})
-vim.api.nvim_create_autocmd('CursorHold', { 
+vim.api.nvim_create_autocmd('CursorHold', {
     desc = 'Show floating diagnostics on the cursor line',
     group = lspGroup,
-    callback = function() 
-        vim.diagnostic.open_float(nil, { scope = "line", focusable = false }) 
+    callback = function()
+        vim.diagnostic.open_float(nil, { scope = "line", focusable = false })
     end
 })
 
@@ -32,6 +32,7 @@ vim.api.nvim_create_autocmd({'BufNewFile', 'BufRead'}, {
 --[[
 
 TODO:
+ - Revert from coq to cmp
  - Setup DAP
  - Write plugin: undo tree viewer with Telescope
  - Tmux integration
@@ -52,21 +53,6 @@ require('packer').startup(function()
         config = function()
             local wk = require('which-key')
 
-            -- Readable names for treesitter-textobjects
-            local objects = require('which-key.plugins.presets').objects
-            objects['ac'] = 'a class'
-            objects['ic'] = 'inner class'
-            objects['a/'] = 'a comment'
-            objects['i/'] = 'a comment'
-            objects['ai'] = 'a conditional'
-            objects['ii'] = 'inner conditional'
-            objects['af'] = 'a function'
-            objects['if'] = 'inner function'
-            objects['al'] = 'a loop'
-            objects['il'] = 'inner loop'
-            objects['aa'] = 'a parameter'
-            objects['ia'] = 'inner parameter'
-
             wk.setup {
                 motions = {count = false},  -- Disable WhichKey for actions like "c3..."
                 plugins = {marks = false},  -- Don't show for marks due to flickering with ``
@@ -82,23 +68,13 @@ require('packer').startup(function()
                     t = {':tabprevious<CR>', 'Previous tab'},
                     T = {':tabfirst<CR>', 'First tab'},
                     -- Quickfix & loclist
-                    l = {'<Plug>(qf_loc_previous)', 'Previous loclist'},
+                    l = {':lprevious<CR>', 'Previous loclist'},
                     L = {':lfirst<CR>', 'First loclist'},
-                    q = {'<Plug>(qf_qf_previous)', 'Previous quickfix'},
+                    q = {':cprevious<CR>', 'Previous quickfix'},
                     Q = {':cfirst<CR>', 'First quickfix'},
                     -- Code
-                    g = {"&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", 'Previous git hunk', expr = true},
+                    c = {"&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", 'Previous change', expr = true},
                     d = {'<cmd>lua vim.diagnostic.goto_prev()<CR>', 'Previous diagnostic'},
-                    -- Treesitter
-                    c = 'Previous class start',
-                    C = 'Previous class end',
-                    ['/'] = 'Previous comment',
-                    i = 'Previous conditional start',
-                    I = 'Previous conditional end',
-                    f = 'Previous function start',
-                    F = 'Previous function end',
-                    a = 'Previous argument start',
-                    A = 'Previous argument end',
                 },
                 [']'] = {
                     name = 'next',
@@ -108,23 +84,13 @@ require('packer').startup(function()
                     t = {':tabnext<CR>', 'Next tab'},
                     T = {':tablast<CR>', 'Last tab'},
                     -- Quickfix & loclist
-                    l = {'<Plug>(qf_loc_next)', 'Next loclist'},
+                    l = {':lnext<CR>', 'Next loclist'},
                     L = {':llast<CR>', 'Last loclist'},
-                    q = {'<Plug>(qf_qf_next)', 'Next quickfix'},
+                    q = {':cnext<CR>', 'Next quickfix'},
                     Q = {':clast<CR>', 'Last quickfix'},
                     -- Code
-                    g = {"&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", 'Next git hunk', expr = true},
+                    c = {"&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", 'Next change', expr = true},
                     d = {'<cmd>lua vim.diagnostic.goto_next()<CR>', 'Next diagnostic'},
-                    -- Treesitter
-                    c = 'Next class start',
-                    C = 'Next class end',
-                    ['/'] = 'Next comment',
-                    i = 'Next conditional start',
-                    I = 'Next conditional end',
-                    f = 'Next function start',
-                    F = 'Next function end',
-                    a = 'Next argument start',
-                    A = 'Next argument end',
                 },
             }
             wk.register(motions, { mode = 'n' })
@@ -132,6 +98,7 @@ require('packer').startup(function()
             wk.register(motions, { mode = 'o' })
 
             -- Text objects: used in visual and operator-pending modes
+            -- More are defined with nvim-treesitter-textobjects
             local text_objects = {
                 ag = {':<C-U>Gitsigns select_hunk<CR>', 'Git hunk'},
                 ig = {':<C-U>Gitsigns select_hunk<CR>', 'Git hunk'},
@@ -162,14 +129,10 @@ require('packer').startup(function()
                 },
 
                 ['<Leader>'] = {
-                    -- UI
-                    q = {'<Plug>(qf_qf_toggle_stay)', 'Toggle quickfix'},
-                    l = {'<Plug>(qf_loc_toggle_stay)', 'Toggle loclist'},
-
                     -- Editing
                     a = {'<Plug>(EasyAlign)', 'Align'},
-                    ['/'] = {'<Plug>Commentary', 'Comment operator'},
-                    ['//'] = {'<Plug>CommentaryLine', 'Comment line'},
+                    c = {'<Plug>Commentary', 'Comment'},
+                    cc = {'<Plug>CommentaryLine', 'Comment line'},
 
                     -- Groups
                     l = {
@@ -177,12 +140,9 @@ require('packer').startup(function()
                         f = {'<cmd>lua vim.lsp.buf.formatting()<CR>', 'Format buffer'},
                         r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
                         a = {"<cmd>lua vim.lsp.buf.code_action()<CR>", 'Code action'},
-                        ['/'] = {':lua require("neogen").generate()<CR>', 'Generate comment'},
-                    },
-                    d = {
-                        name = 'diagnostics',
-                        q = {'<cmd>lua vim.diagnostic.setqflist()<CR>', 'Workspace diagnostics in quickfix'},
-                        l = {'<cmd>lua vim.diagnostic.setloclist()<CR>', 'Buffer diagnostics in loclist'},
+                        d = {'<cmd>lua vim.diagnostic.setloclist()<CR>', 'Buffer diagnostics in loclist'},
+                        D = {'<cmd>lua vim.diagnostic.setqflist()<CR>', 'Workspace diagnostics in quickfix'},
+                        c = {':lua require("neogen").generate()<CR>', 'Generate comment'},
                     },
                     g = {
                         name = 'git',
@@ -226,7 +186,7 @@ require('packer').startup(function()
             wk.register({
                 P = 'Paste without overwriting',
                 ['<Leader>a'] = {'<Plug>(EasyAlign)', 'Align'},
-                ['<Leader>/'] = {'<Plug>Commentary', 'Comment'},
+                ['<Leader>c'] = {'<Plug>Commentary', 'Comment'},
                 ['<Leader>lf'] = {'<cmd>lua vim.lsp.buf.range_formatting()<CR>', 'Format'},
                 ['<Leader>la'] = {"<cmd>lua vim.lsp.buf.range_code_action()<CR>", 'Code action'},
                 ['<Leader>gs'] = {':Gitsigns stage_hunk<CR>', 'Stage lines'},
@@ -311,10 +271,10 @@ require('packer').startup(function()
                         enable = true,
                         lookahead = true,
                         keymaps = {
-                            ["ac"] = "@class.outer",
-                            ["ic"] = "@class.inner",
-                            ["a/"] = "@comment.outer",
-                            ["i/"] = "@comment.outer",
+                            ["ac"] = "@comment.outer",
+                            ["ic"] = "@comment.outer",
+                            ["aC"] = "@class.outer",
+                            ["iC"] = "@class.inner",
                             ["ai"] = "@conditional.outer",
                             ["ii"] = "@conditional.inner",
                             ["af"] = "@function.outer",
@@ -325,36 +285,6 @@ require('packer').startup(function()
                             ["ia"] = "@parameter.inner",
                         }
                     },
-                    move = {
-                        enable = true,
-                        set_jumps = true,
-                        goto_next_start = {
-                            ["]c"] = "@class.outer",
-                            ["]/"] = "@comment.outer",
-                            ["]i"] = "@conditional.outer",
-                            ["]f"] = "@function.outer",
-                            ["]a"] = "@parameter.inner",
-                        },
-                        goto_next_end = {
-                            ["]C"] = "@class.outer",
-                            ["]I"] = "@conditional.outer",
-                            ["]F"] = "@function.outer",
-                            ["]A"] = "@parameter.inner",
-                        },
-                        goto_previous_start = {
-                            ["[c"] = "@class.outer",
-                            ["[/"] = "@comment.outer",
-                            ["[i"] = "@conditional.outer",
-                            ["[f"] = "@function.outer",
-                            ["[a"] = "@parameter.inner",
-                        },
-                        goto_previous_end = {
-                            ["[C"] = "@class.outer",
-                            ["[I"] = "@conditional.outer",
-                            ["[F"] = "@function.outer",
-                            ["[A"] = "@parameter.inner",
-                        },
-                    }
                 },
             }
 
@@ -499,8 +429,6 @@ require('packer').startup(function()
     }
 
     ---- Misc
-    use 'romainl/vim-qf' -- Make quickfix behavior more convenient
-    use 'moll/vim-bbye' -- Add :Bdelete to close buffers without modifying layout
     use 'farmergreg/vim-lastplace' -- Resume editing at last cursor location
 
     -- Enable short CursorHold updatetime without writing swap too often
