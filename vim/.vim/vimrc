@@ -35,9 +35,6 @@ set backspace=indent,eol,start
 set ttimeout
 set ttimeoutlen=100
 
-" Don't use Ex mode, use Q for formatting
-map Q gq
-
 " Allow undo for <C-u> in insert mode
 inoremap <C-U> <C-G>u<C-U>
 

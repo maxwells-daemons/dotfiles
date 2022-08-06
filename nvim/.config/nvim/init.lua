@@ -160,6 +160,7 @@ require('packer').startup(function()
                     f = {
                         name = 'find',
                         f = {"<cmd>lua require('telescope.builtin').find_files()<cr>", 'Files'},
+                        F = {"<cmd>lua require('telescope.builtin').find_files({ hidden = true, no_ignore = true })<cr>", 'Files'},
                         g = {"<cmd>lua require('telescope.builtin').live_grep()<cr>", 'Grep'},
                         b = {"<cmd>lua require('telescope.builtin').buffers()<cr>", 'Buffers'},
                         r = {"<cmd>lua require('telescope.builtin').lsp_references()<cr>", 'References'},
