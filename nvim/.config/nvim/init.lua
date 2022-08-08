@@ -32,7 +32,9 @@ vim.api.nvim_create_autocmd({'BufNewFile', 'BufRead'}, {
 --[[
 
 TODO:
- - Revert from coq to cmp
+ - Setup luasnip
+ - Try https://github.com/hrsh7th/cmp-nvim-lsp-signature-help
+ - Setup copilot and https://github.com/hrsh7th/cmp-copilot
  - Setup DAP
  - Write plugin: undo tree viewer with Telescope
  - Tmux integration
@@ -223,17 +225,85 @@ require('packer').startup(function()
         config = function() require('neogen').setup {} end
     }
 
+    ---- Snippets
+    use 'L3MON4D3/LuaSnip'
+
     ---- Autocompletion
     use {
-        'ms-jpq/coq_nvim', branch = 'coq',
-        setup = function()
-            vim.g.coq_settings = {
-                auto_start = 'shut-up',
-                clients = { snippets = { warn = {} } }, -- Disable no-snippets warning
-                keymap = { jump_to_mark = '' }, -- Disable jump-to-mark keybind
-                display = { icons = { mode = 'none' }}, -- Disable icons
-            }
-        end
+        'hrsh7th/nvim-cmp', -- Autocompletion framework
+        requires = { -- Completion sources
+            'hrsh7th/cmp-nvim-lsp',
+            'hrsh7th/cmp-buffer',
+            'hrsh7th/cmp-path',
+            'hrsh7th/cmp-cmdline',
+            'saadparwaiz1/cmp_luasnip',
+            'petertriho/cmp-git',
+        },
+        config = function()
+            -- Always show a menu, don't select anything unless we <C-n>
+            vim.o.completeopt = 'menu,menuone,noselect'
+
+            local cmp = require 'cmp'
+            local luasnip = require 'luasnip'
+
+            -- Global default config
+            cmp.setup({
+                snippet = {
+                    expand = function(args) luasnip.lsp_expand(args.body) end,
+                },
+                mapping = cmp.mapping.preset.insert({
+                    ["<C-k>"] = cmp.mapping.select_prev_item(),
+                    ["<C-j>"] = cmp.mapping.select_next_item(),
+                    ['<C-Space>'] = cmp.mapping.complete(),
+                    ['<C-e>'] = cmp.mapping.abort(),
+                    ['<CR>'] = cmp.mapping.confirm({ select = true }),
+                    ['<C-u>'] = cmp.mapping.scroll_docs(-4),
+                    ['<C-d>'] = cmp.mapping.scroll_docs(4),
+                }),
+                sources = cmp.config.sources(
+                    { -- Prefer LSP and snippet completion sources
+                        { name = 'nvim_lsp' },
+                        { name = 'luasnip' },
+                    },
+                    {
+                        { name = 'buffer' },
+                    }
+                )
+            })
+
+            -- For git commits, use git and buffer sources
+            cmp.setup.filetype('gitcommit', {
+                sources = cmp.config.sources(
+                    {
+                        { name = 'cmp_git' },
+                    },
+                    {
+                        { name = 'buffer' },
+                    }
+                )
+            })
+
+            -- For / searches, enable completion with buffer source
+            cmp.setup.cmdline('/', {
+                mapping = cmp.mapping.preset.cmdline(),
+                sources = {
+                    { name = 'buffer' }
+                }
+            })
+
+            -- For : command line, enable completion with path and cmdline sources
+            cmp.setup.cmdline(':', {
+                mapping = cmp.mapping.preset.cmdline(),
+                sources = cmp.config.sources(
+                    {
+                        { name = 'path' }
+                    },
+                    {
+                        { name = 'cmdline' }
+                    }
+                )
+            })
+        end,
     }
 
     ---- Git
@@ -322,11 +392,11 @@ require('packer').startup(function()
     ---- Language server
     use {
         'neovim/nvim-lspconfig',  -- Builtin configs for common language servers
-        after = {'coq_nvim', 'vim-illuminate'},
+        after = {'vim-illuminate'},
         config = function()
             local lspconfig = require('lspconfig')
             local illuminate = require('illuminate')
-            local coq = require('coq')
+            local cmp_lsp = require('cmp_nvim_lsp')
 
             -- When we connect to a language server, setup illuminate
             local on_lsp_attach = function(client, _)
@@ -334,8 +404,13 @@ require('packer').startup(function()
             end
 
             local setup_lsp = function(server)
-                local options = coq.lsp_ensure_capabilities({ on_attach = on_lsp_attach })
-                server:setup(options)
+                local capabilities = cmp_lsp.update_capabilities(
+                    vim.lsp.protocol.make_client_capabilities()
+                )
+                server:setup {
+                    on_attach = on_lsp_attach,
+                    capabilities = capabilities
+                }
             end
 
             -- Setup language-specific LSP servers
