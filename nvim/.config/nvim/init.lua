@@ -32,7 +32,6 @@ vim.api.nvim_create_autocmd({'BufNewFile', 'BufRead'}, {
 --[[
 
 TODO:
- - Try https://github.com/hrsh7th/cmp-nvim-lsp-signature-help
  - Setup copilot and https://github.com/hrsh7th/cmp-copilot
  - Setup DAP
  - Write plugin: undo tree viewer with Telescope
@@ -117,7 +116,6 @@ require('packer').startup(function()
 
                 ['<Esc>'] = 'Clear highlighting',
 
-                ['<C-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
                 K = {'<cmd>lua vim.lsp.buf.hover()<CR>', 'Get symbol info'},
 
                 -- Jumps
@@ -197,7 +195,6 @@ require('packer').startup(function()
 
             -- Insert mode mappings
             wk.register({
-                ['<C-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
                 ['<Tab>'] = {"luasnip#expand_or_jumpable() ? '<Plug>luasnip-expand-or-jump' : '<Tab>'", 'Expand snippet or jump forward', expr=true},
                 ['<S-Tab>'] = {"<cmd>lua require('luasnip').jump(-1)<CR>", 'Snippet jump backward'},
             }, { mode='i' })
@@ -244,13 +241,16 @@ require('packer').startup(function()
     ---- Autocompletion
     use {
         'hrsh7th/nvim-cmp', -- Autocompletion framework
-        requires = { -- Completion sources
+        requires = {
+            -- Completion sources
             'hrsh7th/cmp-nvim-lsp',
             'hrsh7th/cmp-buffer',
             'hrsh7th/cmp-path',
             'hrsh7th/cmp-cmdline',
             'saadparwaiz1/cmp_luasnip',
             'petertriho/cmp-git',
+            -- Show help for function signatures
+            'hrsh7th/cmp-nvim-lsp-signature-help'
         },
         config = function()
             -- Always show a menu, don't select anything unless we <C-n>
@@ -277,6 +277,7 @@ require('packer').startup(function()
                     { -- Prefer LSP and snippet completion sources
                         { name = 'nvim_lsp' },
                         { name = 'luasnip' },
+                        { name = 'nvim_lsp_signature_help' },
                     },
                     {
                         { name = 'buffer' },
