@@ -32,7 +32,6 @@ vim.api.nvim_create_autocmd({'BufNewFile', 'BufRead'}, {
 --[[
 
 TODO:
- - Setup luasnip
  - Try https://github.com/hrsh7th/cmp-nvim-lsp-signature-help
  - Setup copilot and https://github.com/hrsh7th/cmp-copilot
  - Setup DAP
@@ -198,9 +197,16 @@ require('packer').startup(function()
 
             -- Insert mode mappings
             wk.register({
-                    ['<C-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
-                }, {mode='i'}
-            )
+                ['<C-s>'] = {'<cmd>lua vim.lsp.buf.signature_help()<CR>', 'Display function signature'},
+                ['<Tab>'] = {"luasnip#expand_or_jumpable() ? '<Plug>luasnip-expand-or-jump' : '<Tab>'", 'Expand snippet or jump forward', expr=true},
+                ['<S-Tab>'] = {"<cmd>lua require('luasnip').jump(-1)<CR>", 'Snippet jump backward'},
+            }, { mode='i' })
+
+            -- Select mode mappings
+            wk.register({
+                ['<Tab>'] = {"<cmd>lua require('luasnip').jump(1)<CR>", 'Snippet jump forward'},
+                ['<S-Tab>'] = {"<cmd>lua require('luasnip').jump(-1)<CR>", 'Snippet jump backward'},
+            }, { mode = 's' })
         end
     }
 
@@ -226,7 +232,14 @@ require('packer').startup(function()
     }
 
     ---- Snippets
-    use 'L3MON4D3/LuaSnip'
+    use {
+        'L3MON4D3/LuaSnip', -- Snippet engine
+        requires = {'rafamadriz/friendly-snippets'}, -- Default snippets
+        config = function()
+            -- Load default snippets from friendly-snippets
+            require('luasnip.loaders.from_vscode').lazy_load()
+        end
+    }
 
     ---- Autocompletion
     use {
@@ -256,7 +269,7 @@ require('packer').startup(function()
                     ["<C-j>"] = cmp.mapping.select_next_item(),
                     ['<C-Space>'] = cmp.mapping.complete(),
                     ['<C-e>'] = cmp.mapping.abort(),
-                    ['<CR>'] = cmp.mapping.confirm({ select = true }),
+                    ['<CR>'] = cmp.mapping.confirm({ select = false }),
                     ['<C-u>'] = cmp.mapping.scroll_docs(-4),
                     ['<C-d>'] = cmp.mapping.scroll_docs(4),
                 }),
