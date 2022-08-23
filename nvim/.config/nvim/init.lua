@@ -225,7 +225,9 @@ require('packer').startup(function()
 
     use { -- Generate comment annotations
         'danymat/neogen',
-        config = function() require('neogen').setup {} end
+        config = function()
+            require('neogen').setup { snippet_engine = "luasnip" }
+        end
     }
 
     ---- Snippets
