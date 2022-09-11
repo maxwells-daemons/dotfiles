@@ -42,8 +42,13 @@ HISTTIMEFORMAT="%F %T "
 # Update LINES and COLUMNS on resize
 shopt -s checkwinsize
 
-# Set prompt
-PS1='[\u@\h \W]\$ '
+# Set prompt to liquidprompt if it's available
+if [ -x "$(command -v liquidprompt)" ]
+then
+    source "$(command -v liquidprompt)"
+else
+    PS1='[\u@\h \W]\$ '
+fi
 
 # Integrate with direnv
 [ -x "$(command -v direnv)" ] && eval "$(direnv hook bash)"
