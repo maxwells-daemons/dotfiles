@@ -141,7 +141,6 @@ require('packer').startup(function()
                         a = {"<cmd>lua vim.lsp.buf.code_action()<CR>", 'Code action'},
                         d = {'<cmd>lua vim.diagnostic.setloclist()<CR>', 'Buffer diagnostics in loclist'},
                         D = {'<cmd>lua vim.diagnostic.setqflist()<CR>', 'Workspace diagnostics in quickfix'},
-                        c = {':lua require("neogen").generate()<CR>', 'Generate comment'},
                     },
                     g = {
                         name = 'git',
@@ -221,13 +220,6 @@ require('packer').startup(function()
         'ggandor/leap.nvim',
         requires = { 'tpope/vim-repeat' },
         config = function() require('leap').set_default_keymaps() end
-    }
-
-    use { -- Generate comment annotations
-        'danymat/neogen',
-        config = function()
-            require('neogen').setup { snippet_engine = "luasnip" }
-        end
     }
 
     ---- Snippets
