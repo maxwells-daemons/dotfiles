@@ -57,9 +57,6 @@ then
 fi
 
 ### Configure programs
-# readline
-export INPUTRC=$XDG_CONFIG_HOME/inputrc
-
 # less
 export LESSKEY="${XDG_CONFIG_HOME}/less/lesskey"
 export LESSHISTFILE="${XDG_CACHE_HOME}/less/history"
