@@ -46,6 +46,9 @@ shopt -s checkwinsize
 if [ -x "$(command -v liquidprompt)" ]
 then
     source "$(command -v liquidprompt)"
+
+    # Disable temperature display
+    export LP_ENABLE_TEMP=0
 else
     PS1='[\u@\h \W]\$ '
 fi
