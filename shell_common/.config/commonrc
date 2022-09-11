@@ -37,7 +37,7 @@ alias \
 # Colorize some commands
 export CLICOLOR=1
 alias \
-    ls="ls -h --color=auto" \
+    ls="ls -h --group-directories-first --color=auto" \
     grep="grep --color=auto" \
     diff="diff --color=auto" \
     ip="ip --color=auto"
