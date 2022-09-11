@@ -42,9 +42,6 @@ alias \
     diff="diff --color=auto" \
     ip="ip --color=auto"
 
-# tmux -- use ~/.config/tmux/tmux.conf even for old tmux versions
-alias tmux="tmux -f $XDG_CONFIG_HOME/tmux/tmux.conf"
-
 # Kitty: automatically copy terminfo to servers on SSH
 if [ $TERM = "xterm-kitty" ]; then
     alias ssh="kitty +kitten ssh"
@@ -55,13 +52,3 @@ if [ -x "$(command -v fdfind)" ]
 then
     alias fd="fdfind"
 fi
-
-### Configure programs
-# less
-export LESSKEY="${XDG_CONFIG_HOME}/less/lesskey"
-export LESSHISTFILE="${XDG_CACHE_HOME}/less/history"
-
-# rust
-export CARGO_HOME=$XDG_DATA_HOME/cargo
-export RUSTUP_HOME=$XDG_DATA_HOME/rustup
-test -f "$CARGO_HOME/env" && source "$CARGO_HOME/env"
