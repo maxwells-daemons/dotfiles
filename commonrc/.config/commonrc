@@ -41,7 +41,9 @@ alias \
     diff="diff --color=auto" \
     ip="ip --color=auto"
 
-if $(ls --group-directories-first 2> /dev/null) # Check if our version of ls supports this
+# Check if our version of ls supports directory grouping
+ls --group-directories-first > /dev/null 2> /dev/null
+if [ $? -eq 0 ]
 then
     alias ls="ls -h --group-directories-first --color=auto"
 else
