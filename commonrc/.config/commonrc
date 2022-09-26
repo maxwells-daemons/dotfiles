@@ -58,3 +58,13 @@ if [ -x "$(command -v fdfind)" ]
 then
     alias fd="fdfind"
 fi
+
+### Configure programs
+# Set prompt to liquidprompt if it's available
+if [ -x "$(command -v liquidprompt)" ]
+then
+    source "$(command -v liquidprompt)"
+
+    # Disable temperature display
+    export LP_ENABLE_TEMP=0
+fi
