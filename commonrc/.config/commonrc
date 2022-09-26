@@ -37,10 +37,16 @@ alias \
 # Colorize some commands
 export CLICOLOR=1
 alias \
-    ls="ls -h --group-directories-first --color=auto" \
     grep="grep --color=auto" \
     diff="diff --color=auto" \
     ip="ip --color=auto"
+
+if $(ls --group-directories-first 2> /dev/null) # Check if our version of ls supports this
+then
+    alias ls="ls -h --group-directories-first --color=auto"
+else
+    alias ls="ls -h --color=auto"
+fi
 
 # Kitty: automatically copy terminfo to servers on SSH
 if [ $TERM = "xterm-kitty" ]; then
