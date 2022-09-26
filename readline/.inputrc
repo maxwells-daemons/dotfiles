@@ -16,7 +16,3 @@ set mark-symlinked-directories on
 
 # Don't modify history after it's written
 set revert-all-at-newline on
-
-# Use the existing text on the line as a prefix to search history
-"\e[B": history-search-forward
-"\e[A": history-search-backward
