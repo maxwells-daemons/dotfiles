@@ -136,7 +136,7 @@ require('packer').startup(function()
                     -- Groups
                     l = {
                         name = 'lsp',
-                        f = {'<cmd>lua vim.lsp.buf.formatting()<CR>', 'Format buffer'},
+                        f = {'<cmd>lua vim.lsp.buf.format { async = true }<CR>', 'Format buffer'},
                         r = {'<cmd>lua vim.lsp.buf.rename()<cr>', 'Rename symbol'},
                         a = {"<cmd>lua vim.lsp.buf.code_action()<CR>", 'Code action'},
                         d = {'<cmd>lua vim.diagnostic.setloclist()<CR>', 'Buffer diagnostics in loclist'},
