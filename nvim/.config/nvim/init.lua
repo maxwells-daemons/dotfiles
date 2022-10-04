@@ -385,10 +385,7 @@ require('packer').startup(function()
         -- NOTE: depends on
         -- - [ripgrep](https://github.com/BurntSushi/ripgrep)
         -- - [fd](https://github.com/sharkdp/fd)
-        requires = {
-            'nvim-lua/plenary.nvim',
-            'nvim-telescope/telescope-symbols.nvim' -- To use: :Telescope symbols
-        },
+        requires = { 'nvim-lua/plenary.nvim' },
         after = {'which-key.nvim', 'telescope-fzf-native.nvim'},
         config = function() require('telescope').load_extension('fzf') end
     }
