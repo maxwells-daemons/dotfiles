@@ -79,4 +79,7 @@ if [ $TERM = "xterm-kitty" ]; then
     # Add "clip" and "put" clipboard commands
     alias clip="kitty +kitten clipboard"
     alias put="kitty +kitten clipboard --get-clipboard"
+
+    # Add "icat" command to view images
+    alias icat="kitty +kitten icat"
 fi
