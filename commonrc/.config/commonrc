@@ -41,18 +41,13 @@ alias \
     diff="diff --color=auto" \
     ip="ip --color=auto"
 
-# Check if our version of ls supports directory grouping
-ls --group-directories-first > /dev/null 2> /dev/null
+# Check if our version of ls supports directory grouping and hyperlinks
+ls --group-directories-first --hyperlink=auto > /dev/null 2> /dev/null
 if [ $? -eq 0 ]
 then
-    alias ls="ls -h --group-directories-first --color=auto"
+    alias ls="ls -h --group-directories-first --hyperlink=auto --color=auto"
 else
     alias ls="ls -h --color=auto"
-fi
-
-# Kitty: automatically copy terminfo to servers on SSH
-if [ $TERM = "xterm-kitty" ]; then
-    alias ssh="kitty +kitten ssh"
 fi
 
 # If fd is called fdfind (Debian), alias it back
@@ -62,7 +57,9 @@ then
 fi
 
 ### Configure programs
-# Set prompt to liquidprompt if it's available
+# Liquidprompt
+export PATH="/usr/share/liquidprompt:$PATH"
+
 if [ -x "$(command -v liquidprompt)" ]
 then
     source "$(command -v liquidprompt)"
