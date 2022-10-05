@@ -34,8 +34,20 @@ setopt hist_verify # When doing history expansion, fill instead of executing
 autoload -Uz compinit; compinit # Load completion scripts
 _comp_options+=(globdots) # Show hidden files in completion
 
+### Programs
+# direnv
+[ -x "$(command -v direnv)" ] && eval "$(direnv hook zsh)"
+
+# fzf keybindings: ctrl+t to list files in current dir, ctrl+r to search history, **<tab> for fuzzy completion
+if [ -d "/usr/share/fzf/" ]
+then
+    source /usr/share/fzf/completion.zsh
+    source /usr/share/fzf/key-bindings.zsh
+
+    # Enable fzf completion for v (nvim)
+    _fzf_setup_completion path v
+fi
+
 ### Misc
 unsetopt beep # Disable beep
 
-# direnv integration
-[ -x "$(command -v direnv)" ] && eval "$(direnv hook zsh)"
