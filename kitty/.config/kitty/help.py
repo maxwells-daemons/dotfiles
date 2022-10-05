@@ -14,7 +14,8 @@ def handle_result(
 ) -> None:
     lines = []
     for k, v in boss.keymap.items():
-        lines.append(f"{k.human_repr}: {v}")
+        repr = kitty.types.human_repr_of_single_key(k, 5)
+        lines.append(f"{repr}: {v}")
 
     text = "\n".join(lines).strip()
 
