@@ -11,12 +11,8 @@ The top-level directories in this folder are Stow packages. Generally, each Stow
 package corresponds to a single program. To install one of them, use
 `stow some_package`.
 
-Some tools use their own package manager to install plugins, which must be
-installed manually:
-
-- neovim: [packer.nvim](https://github.com/wbthomason/packer.nvim)
-- zsh: [antigen](https://github.com/zsh-users/antigen)
-- tmux: [tpm](https://github.com/tmux-plugins/tpm)
+nvim must be bootstrapped by manually installing
+[Packer](https://github.com/wbthomason/packer.nvim) and running `:PackerSync`.
 
 Binary dependencies should be installed through the system package manager, or
 alternative package managers like [pipx](https://github.com/pypa/pipx).
