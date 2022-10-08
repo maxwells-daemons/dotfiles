@@ -41,7 +41,10 @@ require("packer").startup(function(use)
     }
 
     --[[ Autocompletion ]]
-    use "L3MON4D3/LuaSnip" -- Snippets
+    use { "L3MON4D3/LuaSnip", -- Snippets
+        requires = {"rafamadriz/friendly-snippets"}, 
+        config = function() require("luasnip.loaders.from_vscode").lazy_load() end -- Load default snippets from friendly-snippets
+    }
 
     use { "hrsh7th/nvim-cmp", -- Autocompletion engine
         requires = { "saadparwaiz1/cmp_luasnip", "hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-nvim-lsp-signature-help", "hrsh7th/cmp-buffer", "hrsh7th/cmp-path" },
