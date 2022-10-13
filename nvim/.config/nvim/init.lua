@@ -42,7 +42,7 @@ require("packer").startup(function(use)
 
     --[[ Autocompletion ]]
     use { "L3MON4D3/LuaSnip", -- Snippets
-        requires = {"rafamadriz/friendly-snippets"}, 
+        requires = {"rafamadriz/friendly-snippets"},
         config = function() require("luasnip.loaders.from_vscode").lazy_load() end -- Load default snippets from friendly-snippets
     }
 
@@ -174,11 +174,11 @@ require("packer").startup(function(use)
             vim.keymap.set({"x", "o"}, "ig", gs.select_hunk)
             vim.keymap.set({"x", "o"}, "ag", gs.select_hunk)
 
-            vim.keymap.set({"n", "v"}, "<leader>gs", gs.stage_hunk)
+            vim.keymap.set({"n", "v"}, "<leader>gs", "<cmd>Gitsigns stage_hunk<cr>")
             vim.keymap.set("n",        "<leader>gS", gs.stage_buffer)
             vim.keymap.set("n",        "<leader>gu", gs.undo_stage_hunk)
             vim.keymap.set("n",        "<leader>gU", gs.reset_buffer_index)
-            vim.keymap.set({"n", "v"}, "<leader>gr", gs.reset_hunk)
+            vim.keymap.set({"n", "v"}, "<leader>gr", "<cmd>Gitsigns reset_hunk<cr>")
             vim.keymap.set("n",        "<leader>gR", gs.reset_buffer)
             vim.keymap.set("n",        "<leader>gd", gs.toggle_deleted)
             vim.keymap.set("n",        "<leader>gp", gs.preview_hunk)
