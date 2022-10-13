@@ -154,6 +154,11 @@ require("packer").startup(function(use)
     }
 
     --[[ Git ]]
+    use { -- Git editor integration: diffs, edit @ commit, etc
+        "tpope/vim-fugitive",
+        config = function() vim.keymap.set("n", "<leader>gg", "<cmd>Git<cr>") end
+    }
+
     use { -- Git decorations, text objects, etc
         "lewis6991/gitsigns.nvim",
         requires = { "nvim-lua/plenary.nvim" },
