@@ -123,7 +123,7 @@ require("packer").startup(function(use)
     use { "neovim/nvim-lspconfig", -- Prebuilt configs
         config = function()
             local lsp = require("lspconfig")
-            local capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities())
+            local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
             -- Setup language servers
             lsp.pyright.setup({ capabilities =  capabilities })
@@ -225,9 +225,9 @@ vim.keymap.set("n", "<leader>D", vim.diagnostic.setqflist)
 -- LSP motions and actions
 vim.keymap.set("n",        "K",         vim.lsp.buf.hover)
 vim.keymap.set("n",        "gk",        vim.lsp.buf.signature_help)
+vim.keymap.set({"n", "v"}, "=", function() vim.lsp.buf.format({ async = true }) end)
 vim.keymap.set("n",        "<leader>r", vim.lsp.buf.rename)
 vim.keymap.set({"n", "v"}, "<leader>a", vim.lsp.buf.code_action)
-vim.keymap.set({"n", "v"}, "<leader>f", function() vim.lsp.buf.format({ async = true }) end)
 
 vim.keymap.set("n", "gd", vim.lsp.buf.definition)
 vim.keymap.set("n", "gD", vim.lsp.buf.declaration)
