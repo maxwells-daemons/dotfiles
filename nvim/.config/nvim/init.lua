@@ -190,6 +190,7 @@ require("packer").startup(function(use)
     use { "sainnhe/sonokai", config = function() vim.cmd("colorscheme sonokai") end } -- Colorscheme
     use { "chentoast/marks.nvim", config = function() require("marks").setup({}) end } -- Show marks
     use "lukas-reineke/indent-blankline.nvim" -- Show indent guides
+    use "RRethy/vim-illuminate" -- Highlight word under cursor
 
     --[[ Misc ]]
     use "wbthomason/packer.nvim" -- Package manager
