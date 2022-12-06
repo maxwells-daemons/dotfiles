@@ -37,7 +37,7 @@ require("packer").startup(function(use)
     }
 
     use { "ggandor/leap.nvim", -- Fast 2-character motion (s, S, gs)
-        requires = { "tpope/vim-repeat" }, config = function() require("leap").set_default_keymaps() end
+        requires = { "tpope/vim-repeat" }, config = function() require("leap").add_default_mappings() end
     }
 
     --[[ Autocompletion ]]
