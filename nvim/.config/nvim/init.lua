@@ -201,6 +201,7 @@ end)
 -- Leader is <space>
 vim.keymap.set("n", "<space>", "<nop>")
 vim.g.mapleader = " "
+vim.g.maplocalleader = " "
 
 -- <c-hjkl> navigates splits
 vim.keymap.set("n", "<c-h>", "<c-w>h")
@@ -252,6 +253,12 @@ vim.o.updatetime = 500
 -- Searches without caps are case-insensitive
 vim.o.ignorecase = true
 vim.o.smartcase = true
+
+-- Indent to a multiple of shiftwidth
+vim.o.shiftround = true
+
+-- Improve wildmenu completions
+vim.o.wildmode = "longest:full,full"
 
 --[[ Visuals ]]
 -- Show absolute and relative line numbers
