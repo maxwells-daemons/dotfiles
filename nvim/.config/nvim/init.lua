@@ -1,6 +1,12 @@
 --[[ Boostrapping ]]
 -- git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
 
+-- TODO:
+-- - Switch to lazy.vim
+-- - Redo keymaps
+-- - Better bracket mappings (mini.bracketed, text objects, ...)
+-- - checkout mini.nvim (targets -> ai, surround, ...)
+
 -- Automatically PackerCompile when we save this file
 vim.api.nvim_create_autocmd("BufWritePost", {
     command = "source <afile> | PackerCompile",
