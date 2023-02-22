@@ -15,13 +15,23 @@ require("packer").startup(function(use)
         requires = { "nvim-lua/plenary.nvim", { "nvim-telescope/telescope-fzf-native.nvim", run = "make" } },
         after = "telescope-fzf-native.nvim",
         config = function()
-            require("telescope").load_extension("fzf")
-            local telescope = require("telescope.builtin")
+            local telescope = require("telescope")
+            local builtins = require("telescope.builtin")
+            telescope.load_extension("fzf")
+
+            -- <esc> just closes telescope
+            telescope.setup {
+                defaults = {
+                    mappings = {
+                        i = { ["<esc>"] = require("telescope.actions").close },
+                    }
+                }
+            }
 
             -- <tab> searches buffers, <enter> searches files, <s-enter> searches hidden files
-            vim.keymap.set("n", "<tab>", function() telescope.buffers { sort_mru = true, ignore_current_buffer = true } end)
-            vim.keymap.set("n", "<cr>", telescope.find_files)
-            vim.keymap.set("n", "<s-cr>", function() telescope.find_files { hidden = true, no_ignore = true} end)
+            vim.keymap.set("n", "<tab>", function() builtins.buffers { sort_mru = true, ignore_current_buffer = true } end)
+            vim.keymap.set("n", "<cr>", builtins.find_files)
+            vim.keymap.set("n", "<s-cr>", function() builtins.find_files { hidden = true, no_ignore = true} end)
         end
     }
 
