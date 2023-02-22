@@ -11,8 +11,6 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 --[[ Packages ]]
 require("packer").startup(function(use)
     --[[ UI ]]
-    use "moll/vim-bbye" -- Close buffers without changing layout
-
     use { "nvim-telescope/telescope.nvim", -- Fuzzy finder (requires ripgrep and fd)
         requires = { "nvim-lua/plenary.nvim", { "nvim-telescope/telescope-fzf-native.nvim", run = "make" } },
         after = "telescope-fzf-native.nvim",
@@ -208,9 +206,6 @@ vim.keymap.set("n", "<c-h>", "<c-w>h")
 vim.keymap.set("n", "<c-j>", "<c-w>j")
 vim.keymap.set("n", "<c-k>", "<c-w>k")
 vim.keymap.set("n", "<c-l>", "<c-w>l")
-
--- <backspace> closes buffers
-vim.keymap.set("n", "<bs>", "<cmd>Bdelete<cr>")
 
 -- <esc> clears search highlight
 vim.keymap.set("n", "<esc>", "<cmd>nohlsearch<cr>")
